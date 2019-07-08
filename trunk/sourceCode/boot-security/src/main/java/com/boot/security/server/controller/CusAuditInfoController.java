@@ -24,8 +24,10 @@ import com.boot.security.server.page.table.PageTableHandler.CountHandler;
 import com.boot.security.server.page.table.PageTableHandler.ListHandler;
 import com.alibaba.fastjson.JSON;
 import com.boot.security.server.dao.CusAuditInfoDao;
+import com.boot.security.server.dao.CusSelfInfoDao;
 import com.boot.security.server.dao.DictDao;
 import com.boot.security.server.model.CusAuditInfo;
+import com.boot.security.server.model.CusSelfInfo;
 import com.boot.security.server.model.Dict;
 
 import io.swagger.annotations.ApiOperation;
@@ -40,6 +42,9 @@ public class CusAuditInfoController {
     private CusAuditInfoDao cusAuditInfoDao;
     
     @Autowired
+    private CusSelfInfoDao cusSelfInfoDao;
+    
+    @Autowired
     private DictDao dictDao;
 
     @PostMapping
@@ -52,7 +57,7 @@ public class CusAuditInfoController {
 
     @GetMapping("/{id}")
     @ApiOperation(value = "根据id获取")
-    public CusAuditInfo get(@PathVariable Long id) {
+    public CusAuditInfo get(@PathVariable String id) {
         return cusAuditInfoDao.getById(id);
     }
 
@@ -60,7 +65,6 @@ public class CusAuditInfoController {
     @ApiOperation(value = "修改")
     public CusAuditInfo update(@RequestBody CusAuditInfo cusAuditInfo) {
         cusAuditInfoDao.update(cusAuditInfo);
-
         return cusAuditInfo;
     }
     
@@ -68,6 +72,20 @@ public class CusAuditInfoController {
     @ApiOperation(value = "大V审核")
     public String auditCheck(String id,String status) {
         int check = cusAuditInfoDao.auditCheck(id,status);
+        // 修改基本信息表用户身份
+        CusAuditInfo auditInfo = cusAuditInfoDao.getById(id);
+        if(StrUtil.isNotEmpty(auditInfo)) {
+        	String auditStatus = auditInfo.getAuditStatus();
+        	String openid = auditInfo.getOpenid();
+        	CusSelfInfo cusSelfInfo = new CusSelfInfo();
+        	if("1".equals(auditStatus)) {
+        		cusSelfInfo.setUserType("2");
+        	}else {
+        		cusSelfInfo.setUserType("1");
+        	}
+        	cusSelfInfo.setOpenId(openid);
+        	cusSelfInfoDao.update(cusSelfInfo);
+        }
         Map<String,Object> resultMap = new HashMap<String,Object>();
         if(check==1) {
         	resultMap.put("data", "");
