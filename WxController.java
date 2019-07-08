@@ -53,9 +53,9 @@ public class WxController {
 	}
 	
 	@LogAnnotation
-	@PutMapping("login/{code}")
+	@PostMapping("/login")
 	@ApiOperation(value = "微信用户登录",notes="前端通过临时登录凭证code获取session_key和openid等")
-	public String login(@PathVariable String code) {
+	public String login(String code) {
 		HashMap<String,Object> paramMap = new HashMap<String,Object>();
 		paramMap.put("code", code);
 		log.info("前台请求报文>>>>>>>>>>>"+JSON.toJSONString(paramMap));
