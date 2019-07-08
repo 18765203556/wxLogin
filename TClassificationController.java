@@ -3,8 +3,6 @@ package com.boot.security.server.controller;
 import java.util.List;
 import java.util.UUID;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -15,8 +13,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.boot.security.server.dao.TCompanyDao;
-import com.boot.security.server.model.TCompany;
+import com.boot.security.server.dao.TClassificationDao;
+import com.boot.security.server.model.TClassification;
 import com.boot.security.server.page.table.PageTableHandler;
 import com.boot.security.server.page.table.PageTableHandler.CountHandler;
 import com.boot.security.server.page.table.PageTableHandler.ListHandler;
@@ -26,42 +24,34 @@ import com.boot.security.server.page.table.PageTableResponse;
 import io.swagger.annotations.ApiOperation;
 
 @RestController
-@RequestMapping("/tCompanys")
-public class TCompanyController {
-	
-	private static final Logger log = LoggerFactory.getLogger("adminLogger");
-    
-	@Autowired
-    private TCompanyDao tCompanyDao;
+@RequestMapping("/tClassifications")
+public class TClassificationController {
+
+    @Autowired
+    private TClassificationDao tClassificationDao;
 
     @PostMapping
     @ApiOperation(value = "保存")
-    public TCompany save(@RequestBody TCompany tCompany) {
+    public TClassification save(@RequestBody TClassification tClassification) {
     	String id=UUID.randomUUID().toString().toString().replaceAll("-", "");
-    	tCompany.setId(id);
-    	try {
-			tCompanyDao.save(tCompany);
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-        
+    	tClassification.setId(id);
+        tClassificationDao.save(tClassification);
 
-        return tCompany;
+        return tClassification;
     }
 
     @GetMapping("/{id}")
     @ApiOperation(value = "根据id获取")
-    public TCompany get(@PathVariable String id) {
-        return tCompanyDao.getById(id);
+    public TClassification get(@PathVariable String id) {
+        return tClassificationDao.getById(id);
     }
 
     @PutMapping
     @ApiOperation(value = "修改")
-    public TCompany update(@RequestBody TCompany tCompany) {
-        tCompanyDao.update(tCompany);
+    public TClassification update(@RequestBody TClassification tClassification) {
+        tClassificationDao.update(tClassification);
 
-        return tCompany;
+        return tClassification;
     }
 
     @GetMapping
@@ -71,21 +61,13 @@ public class TCompanyController {
 
             @Override
             public int count(PageTableRequest request) {
-                return tCompanyDao.count(request.getParams());
+                return tClassificationDao.count(request.getParams());
             }
         }, new ListHandler() {
 
             @Override
-            public List<TCompany> list(PageTableRequest request) {
-            	List<TCompany> dataList= tCompanyDao.list(request.getParams(), request.getOffset(), request.getLimit());
-//            	String filePath = Const.PICTUREPATH ;
-//            	for (TCompany tCompany : dataList) {
-//            		if(StrUtil.isNotEmpty(tCompany.getLogoImgPath())) {
-//        				log.info(filePath+tCompany.getLogoImgPath());
-//        				tCompany.setLogoImgPath(filePath+tCompany.getLogoImgPath());
-//        			}
-//				}
-                return dataList;
+            public List<TClassification> list(PageTableRequest request) {
+                return tClassificationDao.list(request.getParams(), request.getOffset(), request.getLimit());
             }
         }).handle(request);
     }
@@ -93,7 +75,7 @@ public class TCompanyController {
     @DeleteMapping("/{id}")
     @ApiOperation(value = "删除")
     public void delete(@PathVariable String id) {
-        tCompanyDao.delete(id);
+        tClassificationDao.delete(id);
     }
     /**
      * 展示所有
@@ -103,10 +85,10 @@ public class TCompanyController {
      
      */
     @GetMapping("/all")
-   	@ApiOperation(value = "所有公司")
+   	@ApiOperation(value = "所有岗位分类")
 //   	@PreAuthorize("hasAuthority('sys:menu:query')")
-   	public List<TCompany>  permissionsAll() {
-   		List<TCompany> sysDictionariesAll = tCompanyDao.listAll();
+   	public List<TClassification>  permissionsAll() {
+   		List<TClassification> sysDictionariesAll = tClassificationDao.listAll();
    		return sysDictionariesAll;
    	}
 }
