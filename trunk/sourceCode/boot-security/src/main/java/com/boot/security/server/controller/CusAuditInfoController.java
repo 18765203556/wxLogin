@@ -72,19 +72,13 @@ public class CusAuditInfoController {
             public List<CusAuditInfo> list(PageTableRequest request) {
             	List<CusAuditInfo> list = cusAuditInfoDao.list(request.getParams(), request.getOffset(), request.getLimit());
                 // 拼接图片访问地址
-            	try {
-            		//log.info("IP地址："+NetworkUtil.getLocalIP()+"端口："+NetworkUtil.getLocalPort());
-            		//String filePath = NetworkUtil.getLocalIP()+":"+NetworkUtil.getLocalPort()+"/statics";
-            		String filePath = "statics" ;
-            		for(CusAuditInfo cusAuditInfo:list) {
-            			if(StrUtil.isNotEmpty(cusAuditInfo.getCertifiedImg())) {
-            				log.info(filePath+cusAuditInfo.getCertifiedImg());
-            				cusAuditInfo.setCertifiedImg(filePath+cusAuditInfo.getCertifiedImg());
-            			}
-            		}
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
+            	String filePath = "statics" ;
+        		for(CusAuditInfo cusAuditInfo:list) {
+        			if(StrUtil.isNotEmpty(cusAuditInfo.getCertifiedImg())) {
+        				log.info(filePath+cusAuditInfo.getCertifiedImg());
+        				cusAuditInfo.setCertifiedImg(filePath+cusAuditInfo.getCertifiedImg());
+        			}
+        		}
             	return list;
             }
         }).handle(request);
