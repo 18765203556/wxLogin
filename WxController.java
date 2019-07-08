@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.alibaba.fastjson.JSON;
 import com.boot.security.server.annotation.LogAnnotation;
@@ -40,6 +41,7 @@ public class WxController {
 	
 	@Autowired
 	private CusService cusService;
+	
 
 	@LogAnnotation
 	@PostMapping("/saveCusSelfInfo")
@@ -68,8 +70,7 @@ public class WxController {
 		paramMap.put("openId", openid);
 		paramMap.put("phone", mobile);
 		log.info("获取短信验证码接口--前台请求报文>>>>>>>>>>>"+JSON.toJSONString(paramMap));
-		wxService.getVerifyCode(paramMap);
-		return wxService.wxLogin(paramMap);
+		return wxService.getVerifyCode(paramMap);
 	}
 	
 	@LogAnnotation
@@ -81,9 +82,24 @@ public class WxController {
 		//paramMap.put("verifyCode", verifyCode);
 		paramMap.put("mobile", mobile);
 		log.info("用户手机号绑定接口--前台请求报文>>>>>>>>>>>"+JSON.toJSONString(paramMap));
-		wxService.bindMobile(paramMap);
 		return wxService.bindMobile(paramMap);
 	}
 
+	@LogAnnotation
+	@PostMapping("/uploadFile")
+	@ApiOperation(value = "上传文件接口",notes="上传文件接口")
+	public String uploadFile(MultipartFile file,String openid) throws Exception{
+		return wxService.uploadFile(file,openid);
+	}
 	
+	@LogAnnotation
+	@PostMapping("/auditCheck")
+	@ApiOperation(value = "大V认证接口",notes="大V认证接口")
+	public String auditCheck(String picPath,String openid) throws Exception{
+		HashMap<String,Object> paramMap = new HashMap<String,Object>();
+		paramMap.put("openId", openid);
+		paramMap.put("picPath", picPath);
+		log.info("大V认证接口--前台请求报文>>>>>>>>>>>"+JSON.toJSONString(paramMap));
+		return wxService.auditCheck(paramMap);
+	}
 }
