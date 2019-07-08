@@ -76,10 +76,10 @@ public class WxController {
 	@LogAnnotation
 	@PostMapping("/bindMobile")
 	@ApiOperation(value = "用户手机号绑定接口",notes="用户手机号绑定接口")
-	public String bindMobile(String openid,String mobile) {
+	public String bindMobile(String openid,String mobile,String token) {
 		HashMap<String,Object> paramMap = new HashMap<String,Object>();
 		paramMap.put("openId", openid);
-		//paramMap.put("verifyCode", verifyCode);
+		paramMap.put("token", token);
 		paramMap.put("mobile", mobile);
 		log.info("用户手机号绑定接口--前台请求报文>>>>>>>>>>>"+JSON.toJSONString(paramMap));
 		return wxService.bindMobile(paramMap);
@@ -88,16 +88,17 @@ public class WxController {
 	@LogAnnotation
 	@PostMapping("/uploadFile")
 	@ApiOperation(value = "上传文件接口",notes="上传文件接口")
-	public String uploadFile(MultipartFile file,String openid) throws Exception{
-		return wxService.uploadFile(file,openid);
+	public String uploadFile(MultipartFile file,String openid,String token) throws Exception{
+		return wxService.uploadFile(file,openid,token);
 	}
 	
 	@LogAnnotation
 	@PostMapping("/auditCheck")
 	@ApiOperation(value = "大V认证接口",notes="大V认证接口")
-	public String auditCheck(String picPath,String openid) throws Exception{
+	public String auditCheck(String picPath,String openid,String token) throws Exception{
 		HashMap<String,Object> paramMap = new HashMap<String,Object>();
 		paramMap.put("openId", openid);
+		paramMap.put("token", token);
 		paramMap.put("picPath", picPath);
 		log.info("大V认证接口--前台请求报文>>>>>>>>>>>"+JSON.toJSONString(paramMap));
 		return wxService.auditCheck(paramMap);
