@@ -3,6 +3,8 @@ package com.boot.security.server.controller;
 import java.util.List;
 import java.util.UUID;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -18,6 +20,8 @@ import com.boot.security.server.model.TCompany;
 import com.boot.security.server.page.table.PageTableHandler;
 import com.boot.security.server.page.table.PageTableHandler.CountHandler;
 import com.boot.security.server.page.table.PageTableHandler.ListHandler;
+import com.boot.security.server.utils.Const;
+import com.boot.security.server.utils.StrUtil;
 import com.boot.security.server.page.table.PageTableRequest;
 import com.boot.security.server.page.table.PageTableResponse;
 
@@ -26,8 +30,10 @@ import io.swagger.annotations.ApiOperation;
 @RestController
 @RequestMapping("/tCompanys")
 public class TCompanyController {
-
-    @Autowired
+	
+	private static final Logger log = LoggerFactory.getLogger("adminLogger");
+    
+	@Autowired
     private TCompanyDao tCompanyDao;
 
     @PostMapping
@@ -73,8 +79,15 @@ public class TCompanyController {
 
             @Override
             public List<TCompany> list(PageTableRequest request) {
-            	
-                return tCompanyDao.list(request.getParams(), request.getOffset(), request.getLimit());
+            	List<TCompany> dataList= tCompanyDao.list(request.getParams(), request.getOffset(), request.getLimit());
+//            	String filePath = Const.PICTUREPATH ;
+//            	for (TCompany tCompany : dataList) {
+//            		if(StrUtil.isNotEmpty(tCompany.getLogoImgPath())) {
+//        				log.info(filePath+tCompany.getLogoImgPath());
+//        				tCompany.setLogoImgPath(filePath+tCompany.getLogoImgPath());
+//        			}
+//				}
+                return dataList;
             }
         }).handle(request);
     }
