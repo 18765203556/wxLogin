@@ -1,7 +1,8 @@
 package com.boot.security.server.controller;
 
+import java.util.HashMap;
 import java.util.List;
-
+import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,8 +22,11 @@ import com.boot.security.server.page.table.PageTableResponse;
 import com.boot.security.server.utils.StrUtil;
 import com.boot.security.server.page.table.PageTableHandler.CountHandler;
 import com.boot.security.server.page.table.PageTableHandler.ListHandler;
+import com.alibaba.fastjson.JSON;
 import com.boot.security.server.dao.CusAuditInfoDao;
+import com.boot.security.server.dao.DictDao;
 import com.boot.security.server.model.CusAuditInfo;
+import com.boot.security.server.model.Dict;
 
 import io.swagger.annotations.ApiOperation;
 
@@ -34,6 +38,9 @@ public class CusAuditInfoController {
 
     @Autowired
     private CusAuditInfoDao cusAuditInfoDao;
+    
+    @Autowired
+    private DictDao dictDao;
 
     @PostMapping
     @ApiOperation(value = "保存")
@@ -56,6 +63,23 @@ public class CusAuditInfoController {
 
         return cusAuditInfo;
     }
+    
+    @PostMapping("/auditCheck")
+    @ApiOperation(value = "大V审核")
+    public String auditCheck(String id,String status) {
+        int check = cusAuditInfoDao.auditCheck(id,status);
+        Map<String,Object> resultMap = new HashMap<String,Object>();
+        if(check==1) {
+        	resultMap.put("data", "");
+			resultMap.put("code", "0");
+			resultMap.put("msg", "修改成功");
+        }else {
+        	resultMap.put("data", "");
+			resultMap.put("code", "1");
+			resultMap.put("msg", "修改失败");
+        }
+        return JSON.toJSONString(resultMap);
+    }
 
     @GetMapping
     @ApiOperation(value = "列表")
@@ -77,6 +101,10 @@ public class CusAuditInfoController {
         			if(StrUtil.isNotEmpty(cusAuditInfo.getCertifiedImg())) {
         				log.info(filePath+cusAuditInfo.getCertifiedImg());
         				cusAuditInfo.setCertifiedImg(filePath+cusAuditInfo.getCertifiedImg());
+        				Dict dict = dictDao.getByTypeAndK("auditStatus", cusAuditInfo.getAuditStatus());
+        				if(StrUtil.isNotEmpty(dict)) {
+        					cusAuditInfo.setAuditStatus(dict.getVal());
+        				}
         			}
         		}
             	return list;
