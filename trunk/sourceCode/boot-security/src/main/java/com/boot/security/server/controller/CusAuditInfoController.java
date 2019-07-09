@@ -118,7 +118,7 @@ public class CusAuditInfoController {
         		for(CusAuditInfo cusAuditInfo:list) {
         			if(StrUtil.isNotEmpty(cusAuditInfo.getCertifiedImg())) {
         				log.info(filePath+cusAuditInfo.getCertifiedImg());
-        				cusAuditInfo.setCertifiedImg(filePath+cusAuditInfo.getCertifiedImg());
+        				//cusAuditInfo.setCertifiedImg(filePath+cusAuditInfo.getCertifiedImg());
         				Dict dict = dictDao.getByTypeAndK("auditStatus", cusAuditInfo.getAuditStatus());
         				if(StrUtil.isNotEmpty(dict)) {
         					cusAuditInfo.setAuditStatus(dict.getVal());
