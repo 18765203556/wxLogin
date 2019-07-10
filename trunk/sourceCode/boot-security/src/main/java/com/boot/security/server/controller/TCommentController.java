@@ -41,7 +41,7 @@ public class TCommentController {
 
     @GetMapping("/{id}")
     @ApiOperation(value = "根据id获取")
-    public TComment get(@PathVariable Long id) {
+    public TComment get(@PathVariable String id) {
         return tCommentDao.getById(id);
     }
 
@@ -73,7 +73,7 @@ public class TCommentController {
 
     @DeleteMapping("/{id}")
     @ApiOperation(value = "删除")
-    public void delete(@PathVariable Long id) {
+    public void delete(@PathVariable String id) {
         tCommentDao.delete(id);
     }
 }

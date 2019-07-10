@@ -39,6 +39,7 @@ public class TDynamicController {
     public TDynamic save(@RequestBody TDynamic tDynamic) {
     	String id=UUID.randomUUID().toString().toString().replaceAll("-", "");
     	tDynamic.setId(id);
+    	tDynamic.setDynamicType("dynamic");
         tDynamicDao.save(tDynamic);
 
         return tDynamic;
