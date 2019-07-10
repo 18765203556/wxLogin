@@ -40,6 +40,7 @@ public class TNewsController {
     public TNews save(@RequestBody TNews tNews) {
     	 String id= UUID.randomUUID().toString().replaceAll("-", "");;
     	 tNews.setId(id);
+    	 tNews.setDynamicType("news");
         tNewsDao.save(tNews);
 
         return tNews;
