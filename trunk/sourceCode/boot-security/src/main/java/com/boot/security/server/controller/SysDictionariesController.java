@@ -1,10 +1,10 @@
 package com.boot.security.server.controller;
 
+import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -14,16 +14,15 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.boot.security.server.page.table.PageTableRequest;
-import com.boot.security.server.page.table.PageTableHandler;
-import com.boot.security.server.page.table.PageTableResponse;
-import com.boot.security.server.page.table.PageTableHandler.CountHandler;
-import com.boot.security.server.page.table.PageTableHandler.ListHandler;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.boot.security.server.dao.SysDictionariesDao;
-import com.boot.security.server.model.Permission;
 import com.boot.security.server.model.SysDictionaries;
+import com.boot.security.server.page.table.PageTableHandler;
+import com.boot.security.server.page.table.PageTableHandler.CountHandler;
+import com.boot.security.server.page.table.PageTableHandler.ListHandler;
+import com.boot.security.server.page.table.PageTableRequest;
+import com.boot.security.server.page.table.PageTableResponse;
 
 import io.swagger.annotations.ApiOperation;
 /**
@@ -48,7 +47,8 @@ public class SysDictionariesController {
     public SysDictionaries save(@RequestBody SysDictionaries sysDictionaries) {
     	 String dictionariesId= UUID.randomUUID().toString().replaceAll("-", "");;
     	 sysDictionaries.setDictionariesId(dictionariesId);
-        sysDictionariesDao.save(sysDictionaries);
+    	 sysDictionaries.setCreateTime(new Date());
+    	 sysDictionariesDao.save(sysDictionaries);
 
         return sysDictionaries;
     }
@@ -62,6 +62,7 @@ public class SysDictionariesController {
     @PutMapping
     @ApiOperation(value = "修改")
     public SysDictionaries update(@RequestBody SysDictionaries sysDictionaries) {
+    	sysDictionaries.setUpdateTime(new Date());
         sysDictionariesDao.update(sysDictionaries);
 
         return sysDictionaries;

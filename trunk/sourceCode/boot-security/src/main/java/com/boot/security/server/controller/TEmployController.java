@@ -1,5 +1,6 @@
 package com.boot.security.server.controller;
 
+import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
@@ -13,13 +14,13 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.boot.security.server.page.table.PageTableRequest;
-import com.boot.security.server.page.table.PageTableHandler;
-import com.boot.security.server.page.table.PageTableResponse;
-import com.boot.security.server.page.table.PageTableHandler.CountHandler;
-import com.boot.security.server.page.table.PageTableHandler.ListHandler;
 import com.boot.security.server.dao.TEmployDao;
 import com.boot.security.server.model.TEmploy;
+import com.boot.security.server.page.table.PageTableHandler;
+import com.boot.security.server.page.table.PageTableHandler.CountHandler;
+import com.boot.security.server.page.table.PageTableHandler.ListHandler;
+import com.boot.security.server.page.table.PageTableRequest;
+import com.boot.security.server.page.table.PageTableResponse;
 
 import io.swagger.annotations.ApiOperation;
 
@@ -35,6 +36,7 @@ public class TEmployController {
     public TEmploy save(@RequestBody TEmploy tEmploy) {
     	String id=UUID.randomUUID().toString().toString().replaceAll("-", "");
     	tEmploy.setId(id);
+    	tEmploy.setCreateTime(new Date());
         tEmployDao.save(tEmploy);
 
         return tEmploy;
@@ -49,6 +51,7 @@ public class TEmployController {
     @PutMapping
     @ApiOperation(value = "修改")
     public TEmploy update(@RequestBody TEmploy tEmploy) {
+    	tEmploy.setUpdateTime(new Date());
         tEmployDao.update(tEmploy);
 
         return tEmploy;

@@ -1,5 +1,6 @@
 package com.boot.security.server.controller;
 
+import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
@@ -13,16 +14,15 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.boot.security.server.page.table.PageTableRequest;
-import com.boot.security.server.page.table.PageTableHandler;
-import com.boot.security.server.page.table.PageTableResponse;
-import com.boot.security.server.page.table.PageTableHandler.CountHandler;
-import com.boot.security.server.page.table.PageTableHandler.ListHandler;
 import com.boot.security.server.dao.TCommentDao;
 import com.boot.security.server.dao.TNewsDao;
 import com.boot.security.server.model.TComment;
-import com.boot.security.server.model.TDynamic;
 import com.boot.security.server.model.TNews;
+import com.boot.security.server.page.table.PageTableHandler;
+import com.boot.security.server.page.table.PageTableHandler.CountHandler;
+import com.boot.security.server.page.table.PageTableHandler.ListHandler;
+import com.boot.security.server.page.table.PageTableRequest;
+import com.boot.security.server.page.table.PageTableResponse;
 
 import io.swagger.annotations.ApiOperation;
 
@@ -41,6 +41,7 @@ public class TNewsController {
     	 String id= UUID.randomUUID().toString().replaceAll("-", "");;
     	 tNews.setId(id);
     	 tNews.setDynamicType("news");
+    	 tNews.setCreateTime(new Date());
         tNewsDao.save(tNews);
 
         return tNews;
@@ -55,6 +56,7 @@ public class TNewsController {
     @PutMapping
     @ApiOperation(value = "修改")
     public TNews update(@RequestBody TNews tNews) {
+    	tNews.setUpdateTime(new Date());
         tNewsDao.update(tNews);
 
         return tNews;

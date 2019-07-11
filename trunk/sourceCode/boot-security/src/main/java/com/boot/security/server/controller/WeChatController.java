@@ -1,6 +1,8 @@
 package com.boot.security.server.controller;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import javax.servlet.http.HttpServletRequest;
@@ -8,7 +10,6 @@ import javax.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.redis.serializer.GenericToStringSerializer;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -17,10 +18,16 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.boot.security.server.model.SysDictionaries;
 import com.boot.security.server.model.TComment;
+import com.boot.security.server.model.TCompany;
 import com.boot.security.server.model.TDynamic;
+import com.boot.security.server.model.TEmploy;
+import com.boot.security.server.page.table.PageTableRequest;
+import com.boot.security.server.page.table.PageTableResponse;
 import com.boot.security.server.service.WeChatService;
 import com.boot.security.server.utils.BaseController;
+import com.boot.security.server.utils.Const;
 
 import io.swagger.annotations.ApiOperation;
 /**
@@ -60,23 +67,45 @@ public class WeChatController extends BaseController{
         return userId;
     }
 	/**
-	 * 	展示所有动态列表
+	 * 动态展示
 	 *  Description:
-	 *  @author xiaoding  DateTime 2019年7月9日 下午10:03:19
+	 *  @author xiaoding  DateTime 2019年7月10日 下午2:28:01
 	 *  @param request
-	 *  @param id
+	 *  @param pageSize
+	 *  @param page
 	 *  @return
 	 
 	 */
-	
 	@GetMapping("/listDynamic")
     @ApiOperation(value = "展示所有动态列表")
-    public String listDynamic() {
-		List<TDynamic> dataList;
+    public String listDynamic(PageTableRequest request,Integer pageSize,Integer page) {
+		List<TDynamic> dataList=null;
+		PageTableResponse response;
 		try {
-			dataList = weChatService.listDynamic();
-			log.info(JSON.toJSONString(dataList));
-			return success(dataList);
+			if(pageSize!=null && page!=null){
+				Integer offset=(page-1)*pageSize;
+				Integer limit=page*pageSize;
+				request.setOffset(offset);
+				request.setLimit(limit);
+			}else{
+				return fail("分页参数不正确，请核实参数");
+			}
+			Map<String,Object> resultMap = new HashMap<String,Object>();
+			response = weChatService.listDynamic(request);
+			String news=weChatService.listNewsByOne();
+			dataList=(List<TDynamic>)response.getData();
+			int totalCount=0;
+			if(news!=null){
+				totalCount=1;
+			}
+			if(dataList!=null){
+				totalCount=totalCount+dataList.size();
+			}
+			resultMap.put("news", news);
+			resultMap.put("totalCount", totalCount);
+			resultMap.put("dynamic", dataList);
+			log.info(JSON.toJSONString(resultMap));
+			return success(resultMap);
 		} catch (Exception e) {
 			e.printStackTrace();
 			log.info(JSON.toJSONString(e));
@@ -130,6 +159,8 @@ public class WeChatController extends BaseController{
 			entity.setPictureIds(data.getString("pictureIds"));
 			entity.setPicturePath(data.getString("picturePath"));
 			entity.setStatus(data.getString("status"));
+			//动态与新闻的区分
+			entity.setDynamicType(data.getString("dynamicType"));
 			//获取到的用户id
 			String userId=(String)request.getAttribute("userId");
 			entity.setCreateUser(userId);
@@ -175,6 +206,153 @@ public class WeChatController extends BaseController{
 			entity.setStatus(data.getString("status"));
 			 weChatService.saveComment(entity);
 			 return success(null);
+		} catch (Exception e) {
+			e.printStackTrace();
+			 return fail("系统异常请联系管理员！");
+		}
+       
+    }
+	/**
+	 * 	招聘类型分类接口
+	 *  Description:
+	 *  @author xiaoding  DateTime 2019年7月10日 下午3:41:34
+	 *  @param json
+	 *  @param request
+	 *  @return
+	 
+	 */
+	
+	@GetMapping("/listClassification")
+    @ApiOperation(value = "招聘类型分类接口")
+    public String listClassification() {
+		try {
+			 String result=weChatService.listClassification();
+			 return success(result);
+		} catch (Exception e) {
+			e.printStackTrace();
+			 return fail("系统异常请联系管理员！");
+		}
+       
+    }
+	
+	
+	/**
+	 * 区域列表
+	 *  Description:
+	 *  @author xiaoding  DateTime 2019年7月10日 下午2:28:01
+	 *  @param request
+	 *  @param pageSize
+	 *  @param page
+	 *  @return
+	 
+	 */
+	@GetMapping("/listCity")
+    @ApiOperation(value = " 区域列表")
+    public String listCity() {
+		try {
+			List<SysDictionaries> resultList=weChatService.listCity(Const.CHILDCITY);
+			if(resultList!=null){
+				return success(JSON.toJSONString(resultList));
+			}else{
+				return fail("城市加载失败！请联系管理员！");
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			 return fail("系统异常请联系管理员！");
+		}
+       
+    }
+	/**
+	 *  公司类型
+	 *  Description:
+	 *  @author xiaoding  DateTime 2019年7月10日 下午2:28:01
+	 *  @param request
+	 *  @param pageSize
+	 *  @param page
+	 *  @return
+	 
+	 */
+	@GetMapping("/listCompanyType")
+    @ApiOperation(value = "公司类型")
+    public String listCompanyType() {
+		try {
+			List<SysDictionaries> resultList=weChatService.listCompanyType(Const.COMPANYTYPE);
+			if(resultList!=null){
+				return success(JSON.toJSONString(resultList));
+			}else{
+				return fail("城市加载失败！请联系管理员！");
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			 return fail("系统异常请联系管理员！");
+		}
+       
+    }
+	
+	
+	/**
+	 * 工作筛选
+	 *  Description:
+	 *  @author xiaoding  DateTime 2019年7月10日 下午2:28:01
+	 *  @param request
+	 *  @param pageSize
+	 *  @param page
+	 *  @return
+	 
+	 */
+	@GetMapping("/listEmploy")
+    @ApiOperation(value = "工作筛选")
+    public String listEmploy(PageTableRequest request,Integer pageSize,Integer page) {
+		List<TEmploy> dataList=null;
+		PageTableResponse response;
+		try {
+			if(pageSize!=null && page!=null){
+				Integer offset=(page-1)*pageSize;
+				Integer limit=page*pageSize;
+				request.setOffset(offset);
+				request.setLimit(limit);
+				
+				Map<String,Object> resultMap = new HashMap<String,Object>();
+				response = weChatService.listEmploy(request);
+				dataList=(List<TEmploy>)response.getData();
+				int totalCount=0;
+				if(dataList!=null){
+					totalCount=totalCount+dataList.size();
+				}
+				resultMap.put("totalCount", totalCount);
+				resultMap.put("city", dataList);
+				log.info(JSON.toJSONString(resultMap));
+				return JSON.toJSONString(resultMap);
+			}else{
+				return fail("分页参数不正确，请核实参数");
+			}
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return fail("系统出错了请联系管理员");
+		}
+		
+    }
+	/**
+	 *  公司详情
+	 *  Description:
+	 *  @author xiaoding  DateTime 2019年7月10日 下午2:28:01
+	 *  @param request
+	 *  @param pageSize
+	 *  @param page
+	 *  @return
+	 
+	 */
+	@GetMapping("/companyDetail")
+    @ApiOperation(value = "公司详情")
+    public String companyDetail(String id) {
+		try {
+			TCompany resultList=weChatService.companyDetail(id);
+			if(resultList!=null){
+				return success(JSON.toJSONString(resultList));
+			}else{
+				return fail("公司详情查询失败！请联系管理员！");
+			}
 		} catch (Exception e) {
 			e.printStackTrace();
 			 return fail("系统异常请联系管理员！");

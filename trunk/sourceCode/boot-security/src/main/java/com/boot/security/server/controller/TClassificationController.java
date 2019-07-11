@@ -1,5 +1,6 @@
 package com.boot.security.server.controller;
 
+import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
@@ -35,6 +36,7 @@ public class TClassificationController {
     public TClassification save(@RequestBody TClassification tClassification) {
     	String id=UUID.randomUUID().toString().toString().replaceAll("-", "");
     	tClassification.setId(id);
+    	tClassification.setCreateTime(new Date());
         tClassificationDao.save(tClassification);
 
         return tClassification;
@@ -49,6 +51,7 @@ public class TClassificationController {
     @PutMapping
     @ApiOperation(value = "修改")
     public TClassification update(@RequestBody TClassification tClassification) {
+    	tClassification.setUpdateTime(new  Date());
         tClassificationDao.update(tClassification);
 
         return tClassification;
