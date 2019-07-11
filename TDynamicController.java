@@ -84,6 +84,7 @@ public class TDynamicController {
     @ApiOperation(value = "删除")
     public void delete(@PathVariable String id) {
         tDynamicDao.delete(id);
+        tCommentDao.deleteAllByDynamicId(id);
     }
     /**
      * 根据动态id获取动态信息
