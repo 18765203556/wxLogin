@@ -17,38 +17,38 @@ import com.boot.security.server.page.table.PageTableHandler;
 import com.boot.security.server.page.table.PageTableResponse;
 import com.boot.security.server.page.table.PageTableHandler.CountHandler;
 import com.boot.security.server.page.table.PageTableHandler.ListHandler;
-import com.boot.security.server.dao.CusSelfInfoDao;
-import com.boot.security.server.model.CusSelfInfo;
+import com.boot.security.server.dao.TWorkHisDao;
+import com.boot.security.server.model.TWorkHis;
 
 import io.swagger.annotations.ApiOperation;
 
 @RestController
-@RequestMapping("/cusSelfInfos")
-public class CusSelfInfoController {
+@RequestMapping("/tWorkHiss")
+public class TWorkHisController {
 
     @Autowired
-    private CusSelfInfoDao cusSelfInfoDao;
+    private TWorkHisDao tWorkHisDao;
 
     @PostMapping
     @ApiOperation(value = "保存")
-    public CusSelfInfo save(@RequestBody CusSelfInfo cusSelfInfo) {
-        cusSelfInfoDao.save(cusSelfInfo);
+    public TWorkHis save(@RequestBody TWorkHis tWorkHis) {
+        tWorkHisDao.save(tWorkHis);
 
-        return cusSelfInfo;
+        return tWorkHis;
     }
 
     @GetMapping("/{id}")
     @ApiOperation(value = "根据id获取")
-    public CusSelfInfo get(@PathVariable String id) {
-        return cusSelfInfoDao.getById(id);
+    public TWorkHis get(@PathVariable String id) {
+        return tWorkHisDao.getById(id);
     }
 
     @PutMapping
     @ApiOperation(value = "修改")
-    public CusSelfInfo update(@RequestBody CusSelfInfo cusSelfInfo) {
-        cusSelfInfoDao.update(cusSelfInfo);
+    public TWorkHis update(@RequestBody TWorkHis tWorkHis) {
+        tWorkHisDao.update(tWorkHis);
 
-        return cusSelfInfo;
+        return tWorkHis;
     }
 
     @GetMapping
@@ -58,20 +58,20 @@ public class CusSelfInfoController {
 
             @Override
             public int count(PageTableRequest request) {
-                return cusSelfInfoDao.count(request.getParams());
+                return tWorkHisDao.count(request.getParams());
             }
         }, new ListHandler() {
 
             @Override
-            public List<CusSelfInfo> list(PageTableRequest request) {
-                return cusSelfInfoDao.list(request.getParams(), request.getOffset(), request.getLimit());
+            public List<TWorkHis> list(PageTableRequest request) {
+                return tWorkHisDao.list(request.getParams(), request.getOffset(), request.getLimit());
             }
         }).handle(request);
     }
 
     @DeleteMapping("/{id}")
     @ApiOperation(value = "删除")
-    public void delete(@PathVariable Long id) {
-        cusSelfInfoDao.delete(id);
+    public void delete(@PathVariable String id) {
+        tWorkHisDao.delete(id);
     }
 }
