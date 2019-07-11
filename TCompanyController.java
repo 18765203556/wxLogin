@@ -1,5 +1,6 @@
 package com.boot.security.server.controller;
 
+import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
@@ -40,13 +41,13 @@ public class TCompanyController {
     	String id=UUID.randomUUID().toString().toString().replaceAll("-", "");
     	tCompany.setId(id);
     	try {
+    		tCompany.setCreateTime(new Date());
 			tCompanyDao.save(tCompany);
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+			log.info(e.toString());
 		}
-        
-
         return tCompany;
     }
 
@@ -59,6 +60,7 @@ public class TCompanyController {
     @PutMapping
     @ApiOperation(value = "修改")
     public TCompany update(@RequestBody TCompany tCompany) {
+    	tCompany.setUpdateTime(new Date());
         tCompanyDao.update(tCompany);
 
         return tCompany;

@@ -1,5 +1,6 @@
 package com.boot.security.server.controller;
 
+import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
@@ -13,15 +14,15 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.boot.security.server.page.table.PageTableRequest;
-import com.boot.security.server.page.table.PageTableHandler;
-import com.boot.security.server.page.table.PageTableResponse;
-import com.boot.security.server.page.table.PageTableHandler.CountHandler;
-import com.boot.security.server.page.table.PageTableHandler.ListHandler;
 import com.boot.security.server.dao.TCommentDao;
 import com.boot.security.server.dao.TDynamicDao;
 import com.boot.security.server.model.TComment;
 import com.boot.security.server.model.TDynamic;
+import com.boot.security.server.page.table.PageTableHandler;
+import com.boot.security.server.page.table.PageTableHandler.CountHandler;
+import com.boot.security.server.page.table.PageTableHandler.ListHandler;
+import com.boot.security.server.page.table.PageTableRequest;
+import com.boot.security.server.page.table.PageTableResponse;
 
 import io.swagger.annotations.ApiOperation;
 
@@ -40,6 +41,7 @@ public class TDynamicController {
     	String id=UUID.randomUUID().toString().toString().replaceAll("-", "");
     	tDynamic.setId(id);
     	tDynamic.setDynamicType("dynamic");
+    	tDynamic.setCreateTime(new Date());
         tDynamicDao.save(tDynamic);
 
         return tDynamic;
@@ -54,6 +56,7 @@ public class TDynamicController {
     @PutMapping
     @ApiOperation(value = "修改")
     public TDynamic update(@RequestBody TDynamic tDynamic) {
+    	tDynamic.setUpdateTime(new Date());
         tDynamicDao.update(tDynamic);
 
         return tDynamic;
