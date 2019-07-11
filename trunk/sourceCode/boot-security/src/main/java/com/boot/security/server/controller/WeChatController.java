@@ -25,9 +25,11 @@ import com.boot.security.server.model.TCompany;
 import com.boot.security.server.model.TDynamic;
 import com.boot.security.server.model.TEmploy;
 import com.boot.security.server.model.TEmployCollect;
+import com.boot.security.server.model.TEmployComment;
 import com.boot.security.server.model.TEmployDeliver;
 import com.boot.security.server.page.table.PageTableRequest;
 import com.boot.security.server.page.table.PageTableResponse;
+import com.boot.security.server.service.CusService;
 import com.boot.security.server.service.WeChatService;
 import com.boot.security.server.utils.BaseController;
 import com.boot.security.server.utils.Const;
@@ -51,6 +53,8 @@ public class WeChatController extends BaseController{
 	
 	@Autowired
 	private WeChatService weChatService;
+	@Autowired
+	private CusService cusService;
 	/**
 	 * 获取用户id
 	 *  Description:
@@ -656,5 +660,156 @@ public class WeChatController extends BaseController{
 			log.info(JSON.toJSONString(e));
 			 return fail("系统异常请联系管理员！");
 		}
+    }
+	/**
+	 * 	用户对职位进行评价
+	 *  Description:
+	 *  @author xiaoding  DateTime 2019年7月10日 上午9:07:23
+	 *  @param json
+	 *  @param request
+	 *  @return
+	 
+	 */
+	
+	@PostMapping("/saveCompanyComment")
+    @ApiOperation(value = "用户点击猜你喜欢左右两边按钮")
+    public String saveCompanyComment(@RequestBody String json,HttpServletRequest request) {
+		try {
+			JSONObject data=JSONObject.parseObject(json);
+			TEmployComment entity=new TEmployComment();
+			//获取id
+			entity.setId(UUID.randomUUID().toString().replaceAll("-", ""));
+			//获取到的用户id
+			String userId=(String)request.getAttribute("userId");
+			String employId=data.getString("employId");
+			entity.setEmployId(employId);
+			//评论用户
+			entity.setCreateUser(userId);
+			//不喜欢
+			entity.setGiveUp("0");
+			//创建时间
+			entity.setCreateTime(new Date());
+			//状态字段
+			String result= weChatService.saveCompanyComment(entity);
+			return success(result);
+		} catch (Exception e) {
+			e.printStackTrace();
+			 return fail("系统异常请联系管理员！");
+		}
+    }
+	//Guess you like
+	/**
+	 * 	猜你喜欢列表分页
+	 *  Description:
+	 *  @author xiaoding  DateTime 2019年7月11日 下午8:22:40
+	 *  @param req
+	 *  @param request
+	 *  @param pageSize
+	 *  @param page
+	 *  @return
+	 
+	 */
+	@GetMapping("/listYouLikeEmploy")
+    @ApiOperation(value = "猜你喜欢列表分页")
+    public String listYouLikeEmploy(HttpServletRequest req,PageTableRequest request,Integer pageSize,Integer page) {
+		List<TEmploy> dataList=null;
+		PageTableResponse response;
+		try {
+			String userId=(String)req.getAttribute("userId");
+			Map<String, Object> params=request.getParams();
+			if(params!=null){
+				params.put("userId", userId);
+				params.put("isLike", "isLike");
+			}
+			if(pageSize!=null && page!=null){
+				Integer offset=(page-1)*pageSize;
+				Integer limit=page*pageSize;
+				request.setOffset(offset);
+				request.setLimit(limit);
+				
+				Map<String,Object> resultMap = new HashMap<String,Object>();
+				response = weChatService.listEmploy(request);
+				dataList=(List<TEmploy>)response.getData();
+				int totalCount=0;
+				if(dataList!=null){
+					totalCount=totalCount+dataList.size();
+				}
+				resultMap.put("totalCount", totalCount);
+				resultMap.put("list", dataList);
+				log.info(JSON.toJSONString(resultMap));
+				return success(resultMap);
+			}else{
+				return fail("分页参数不正确，请核实参数");
+			}
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return fail("系统出错了请联系管理员");
+		}
+		
+    }
+	/**
+	 * 	用户对职位进行喜欢，不喜欢操作
+	 *  Description:
+	 *  @author xiaoding  DateTime 2019年7月10日 上午9:07:23
+	 *  @param json
+	 *  @param request
+	 *  @return
+	 
+	 */
+	
+	@PostMapping("/updateCusSelfInfo")
+    @ApiOperation(value = "用户对职位进行喜欢，不喜欢操作")
+    public String updateCusSelfInfo(@RequestBody String json,HttpServletRequest request) {
+		try {
+			return cusService.updateCus(json);
+		} catch (Exception e) {
+			e.printStackTrace();
+			 return fail("系统异常请联系管理员！");
+		}
+    }
+	/**
+	 * 	所有公司列表
+	 *  Description:
+	 *  @author xiaoding  DateTime 2019年7月11日 下午10:18:18
+	 *  @param req
+	 *  @param request
+	 *  @param pageSize
+	 *  @param page
+	 *  @return
+	 
+	 */
+	@GetMapping("/listCompany")
+    @ApiOperation(value = "所有公司列表")
+    public String listCompany(HttpServletRequest req,PageTableRequest request,Integer pageSize,Integer page) {
+		List<TCompany> dataList=null;
+		PageTableResponse response;
+		try {
+			if(pageSize!=null && page!=null){
+				Integer offset=(page-1)*pageSize;
+				Integer limit=page*pageSize;
+				request.setOffset(offset);
+				request.setLimit(limit);
+				
+				Map<String,Object> resultMap = new HashMap<String,Object>();
+				response = weChatService.listCompany(request);
+				dataList=(List<TCompany>)response.getData();
+				int totalCount=0;
+				if(dataList!=null){
+					totalCount=totalCount+dataList.size();
+				}
+				resultMap.put("totalCount", totalCount);
+				resultMap.put("list", dataList);
+				log.info(JSON.toJSONString(resultMap));
+				return success(resultMap);
+			}else{
+				return fail("分页参数不正确，请核实参数");
+			}
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return fail("系统出错了请联系管理员");
+		}
+		
     }
 }
