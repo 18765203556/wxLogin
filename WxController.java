@@ -1,6 +1,7 @@
 package com.boot.security.server.controller;
 
 import java.util.HashMap;
+import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,7 +13,9 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.boot.security.server.annotation.LogAnnotation;
+import com.boot.security.server.dao.TCertificateDao;
 import com.boot.security.server.service.CusService;
 import com.boot.security.server.service.WxService;
 
@@ -38,6 +41,9 @@ public class WxController {
 	
 	@Autowired
 	private CusService cusService;
+	
+	@Autowired
+	private TCertificateDao tCertificateDao;
 	
 
 	@LogAnnotation
@@ -111,5 +117,51 @@ public class WxController {
 		paramMap.put("type", type);
 		log.info("获取字典列表接口--前台请求报文>>>>>>>>>>>"+JSON.toJSONString(paramMap));
 		return wxService.getDictByType(paramMap);
+	}
+	
+	@LogAnnotation
+	@PostMapping("/addCert")
+	@ApiOperation(value = "添加证书接口",notes="添加证书接口")
+	public String addCert(String certName,String certPath,String openid,String token) throws Exception{
+		HashMap<String,Object> paramMap = new HashMap<String,Object>();
+		paramMap.put("openId", openid);
+		paramMap.put("token", token);
+		paramMap.put("certPath", certPath);
+		paramMap.put("certName", certName);
+		log.info("保存证书接口--前台请求报文>>>>>>>>>>>"+JSON.toJSONString(paramMap));
+		return cusService.addCert(paramMap);
+	}
+	
+	@LogAnnotation
+	@PostMapping("/delCert")
+	@ApiOperation(value = "删除证书接口",notes="删除证书接口")
+	public String delCert(String id,String openid,String token) throws Exception{
+		Map<String,Object> resultMap = new HashMap<String,Object>();
+		HashMap<String,Object> paramMap = new HashMap<String,Object>();
+		paramMap.put("openId", openid);
+		paramMap.put("token", token);
+		paramMap.put("id", id);
+		log.info("删除证书接口--前台请求报文>>>>>>>>>>>"+JSON.toJSONString(paramMap));
+		// 微信服务鉴权
+		String auth = wxService.commenAuth(paramMap);
+		JSONObject jsonObject = JSON.parseObject(auth);
+		if("1".equals((String)jsonObject.get("code"))) {
+			return auth;
+		}
+		int delete = tCertificateDao.delete(id);
+		if(1==delete) {
+			// 证书删除成功
+			resultMap.put("data", "");
+			resultMap.put("code", "0");
+			resultMap.put("msg", "删除成功");
+			log.info("证书删除成功－－－－－－－－－end－－－－－－－");
+		}else {
+			// 证书删除失败
+			resultMap.put("data", "");
+			resultMap.put("code", "1");
+			resultMap.put("msg", "删除失败");
+			log.info("证书删除失败-----end－－－－－－－");
+		}
+		return JSON.toJSONString(resultMap);
 	}
 }
