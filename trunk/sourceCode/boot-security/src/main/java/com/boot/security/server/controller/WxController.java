@@ -17,6 +17,8 @@ import com.alibaba.fastjson.JSONObject;
 import com.boot.security.server.annotation.LogAnnotation;
 import com.boot.security.server.dao.CusSelfInfoDao;
 import com.boot.security.server.dao.TCertificateDao;
+import com.boot.security.server.dao.TServiceHisDao;
+import com.boot.security.server.dao.TWorkHisDao;
 import com.boot.security.server.model.CusSelfInfo;
 import com.boot.security.server.service.CusService;
 import com.boot.security.server.service.ResumeService;
@@ -52,7 +54,13 @@ public class WxController {
 	private TCertificateDao tCertificateDao;
 	
 	@Autowired
+	private TServiceHisDao tServiceHisDao;
+	
+	@Autowired
 	private CusSelfInfoDao cusSelfInfoDao;
+	
+	@Autowired
+	private TWorkHisDao tWorkHisDao;
 	
 
 	@LogAnnotation
@@ -208,6 +216,88 @@ public class WxController {
 			resultMap.put("code", "1");
 			resultMap.put("msg", "查询客户基本信息失败！");
 			resultMap.put("data", "");
+		}
+		return JSON.toJSONString(resultMap);
+	}
+	
+	@LogAnnotation
+	@PostMapping("/addService")
+	@ApiOperation(value = "添加服役履历接口",notes="添加服役履历接口")
+	public String addService(@RequestBody String json) throws Exception{
+		log.info("添加服役履历接口>>>>>>>>>>>"+json);
+		return cusService.addService(json);
+	}
+	
+	@LogAnnotation
+	@PostMapping("/delService")
+	@ApiOperation(value = "删除服役履历接口",notes="删除服役履历接口")
+	public String delService(String id,String openid,String token) throws Exception{
+		Map<String,Object> resultMap = new HashMap<String,Object>();
+		HashMap<String,Object> paramMap = new HashMap<String,Object>();
+		paramMap.put("openId", openid);
+		paramMap.put("token", token);
+		paramMap.put("id", id);
+		log.info("删除服役履历接口--前台请求报文>>>>>>>>>>>"+JSON.toJSONString(paramMap));
+		// 微信服务鉴权
+		String auth = wxService.commenAuth(paramMap);
+		JSONObject jsonObject = JSON.parseObject(auth);
+		if("1".equals((String)jsonObject.get("code"))) {
+			return auth;
+		}
+		int delete = tServiceHisDao.delete(id);
+		if(1==delete) {
+			// 证书删除成功
+			resultMap.put("data", "");
+			resultMap.put("code", "0");
+			resultMap.put("msg", "删除成功");
+			log.info("服役履历删除成功－－－－－－－－－end－－－－－－－");
+		}else {
+			// 证书删除失败
+			resultMap.put("data", "");
+			resultMap.put("code", "1");
+			resultMap.put("msg", "删除失败");
+			log.info("服役履历删除失败-----end－－－－－－－");
+		}
+		return JSON.toJSONString(resultMap);
+	}
+	
+	@LogAnnotation
+	@PostMapping("/addWork")
+	@ApiOperation(value = "添加社会工作经历接口",notes="添加社会工作经历接口")
+	public String addWork(@RequestBody String json) throws Exception{
+		log.info("添加社会工作经历接口>>>>>>>>>>>"+json);
+		return cusService.addWork(json);
+	}
+	
+	@LogAnnotation
+	@PostMapping("/delWork")
+	@ApiOperation(value = "删除社会工作经历接口",notes="删除社会工作经历接口")
+	public String delWork(String id,String openid,String token) throws Exception{
+		Map<String,Object> resultMap = new HashMap<String,Object>();
+		HashMap<String,Object> paramMap = new HashMap<String,Object>();
+		paramMap.put("openId", openid);
+		paramMap.put("token", token);
+		paramMap.put("id", id);
+		log.info("删除社会工作经历接口--前台请求报文>>>>>>>>>>>"+JSON.toJSONString(paramMap));
+		// 微信服务鉴权
+		String auth = wxService.commenAuth(paramMap);
+		JSONObject jsonObject = JSON.parseObject(auth);
+		if("1".equals((String)jsonObject.get("code"))) {
+			return auth;
+		}
+		int delete = tWorkHisDao.delete(id);
+		if(1==delete) {
+			// 证书删除成功
+			resultMap.put("data", "");
+			resultMap.put("code", "0");
+			resultMap.put("msg", "删除成功");
+			log.info("删除社会工作经历成功－－－－－－－－－end－－－－－－－");
+		}else {
+			// 证书删除失败
+			resultMap.put("data", "");
+			resultMap.put("code", "1");
+			resultMap.put("msg", "删除失败");
+			log.info("删除社会工作经历失败-----end－－－－－－－");
 		}
 		return JSON.toJSONString(resultMap);
 	}
