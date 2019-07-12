@@ -758,16 +758,14 @@ public class WeChatController extends BaseController{
 	 
 	 */
 	
-	@PostMapping("/updateCusSelfInfo")
-    @ApiOperation(value = "用户对职位进行喜欢，不喜欢操作")
-    public String updateCusSelfInfo(@RequestBody String json,HttpServletRequest request) {
-		try {
-			return cusService.updateCus(json);
-		} catch (Exception e) {
-			e.printStackTrace();
-			 return fail("系统异常请联系管理员！");
-		}
-    }
+	/*
+	 * @PostMapping("/updateCusSelfInfo")
+	 * 
+	 * @ApiOperation(value = "用户对职位进行喜欢，不喜欢操作") public String
+	 * updateCusSelfInfo(@RequestBody String json,HttpServletRequest request) { try
+	 * { return cusService.updateCus(json); } catch (Exception e) {
+	 * e.printStackTrace(); return fail("系统异常请联系管理员！"); } }
+	 */
 	/**
 	 * 	所有公司列表
 	 *  Description:
