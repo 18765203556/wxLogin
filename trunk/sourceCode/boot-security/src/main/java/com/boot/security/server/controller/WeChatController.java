@@ -717,9 +717,21 @@ public class WeChatController extends BaseController{
 		try {
 			String userId=(String)req.getAttribute("userId");
 			Map<String, Object> params=request.getParams();
+			//猜你喜欢保存在用户信息里面的喜欢的职位类型多选，已分号分隔
+			String employTypes=(String)req.getAttribute("employTypes");
+			if(employTypes!=null){
+				if(employTypes.indexOf(";")>-1){
+					employTypes="('"+employTypes.replace(";", "';'")+"')";
+				}else{
+					employTypes="('"+employTypes+"')";
+				}
+				params.put("employTypes",employTypes);
+			}
+			
 			if(params!=null){
 				params.put("userId", userId);
 				params.put("isLike", "isLike");
+				
 			}
 			if(pageSize!=null && page!=null){
 				Integer offset=(page-1)*pageSize;
@@ -748,24 +760,7 @@ public class WeChatController extends BaseController{
 		}
 		
     }
-	/**
-	 * 	用户对职位进行喜欢，不喜欢操作
-	 *  Description:
-	 *  @author xiaoding  DateTime 2019年7月10日 上午9:07:23
-	 *  @param json
-	 *  @param request
-	 *  @return
-	 
-	 */
 	
-	/*
-	 * @PostMapping("/updateCusSelfInfo")
-	 * 
-	 * @ApiOperation(value = "用户对职位进行喜欢，不喜欢操作") public String
-	 * updateCusSelfInfo(@RequestBody String json,HttpServletRequest request) { try
-	 * { return cusService.updateCus(json); } catch (Exception e) {
-	 * e.printStackTrace(); return fail("系统异常请联系管理员！"); } }
-	 */
 	/**
 	 * 	所有公司列表
 	 *  Description:
