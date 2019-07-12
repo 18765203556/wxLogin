@@ -15,8 +15,11 @@ import org.springframework.web.multipart.MultipartFile;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.boot.security.server.annotation.LogAnnotation;
+import com.boot.security.server.dao.CusSelfInfoDao;
 import com.boot.security.server.dao.TCertificateDao;
+import com.boot.security.server.model.CusSelfInfo;
 import com.boot.security.server.service.CusService;
+import com.boot.security.server.service.ResumeService;
 import com.boot.security.server.service.WxService;
 
 import io.swagger.annotations.Api;
@@ -43,7 +46,13 @@ public class WxController {
 	private CusService cusService;
 	
 	@Autowired
+	private ResumeService resumeService;
+	
+	@Autowired
 	private TCertificateDao tCertificateDao;
+	
+	@Autowired
+	private CusSelfInfoDao cusSelfInfoDao;
 	
 
 	@LogAnnotation
@@ -164,4 +173,43 @@ public class WxController {
 		}
 		return JSON.toJSONString(resultMap);
 	}
+	
+	@LogAnnotation
+	@PostMapping("/addSkill")
+	@ApiOperation(value = "添加/修改技能接口",notes="添加/修改技能接口")
+	public String addSkill(String skillCodes,String openid,String token) throws Exception{
+		HashMap<String,Object> paramMap = new HashMap<String,Object>();
+		paramMap.put("openId", openid);
+		paramMap.put("token", token);
+		paramMap.put("skillCodes", skillCodes);
+		log.info("保存技能接口--前台请求报文>>>>>>>>>>>"+JSON.toJSONString(paramMap));
+		return cusService.addSkill(paramMap);
+	}
+	
+	@LogAnnotation
+	@PostMapping("/detail")
+	@ApiOperation(value = "我的简历/预览简历接口",notes="我的简历/预览简历接口")
+	public String detail(String openid,String token) throws Exception{
+		Map<String,Object> resultMap = new HashMap<String,Object>();
+		HashMap<String,Object> paramMap = new HashMap<String,Object>();
+		paramMap.put("openId", openid);
+		paramMap.put("token", token);
+		log.info("我的简历/预览简历接口--前台请求报文>>>>>>>>>>>"+JSON.toJSONString(paramMap));
+		// 微信服务鉴权
+		String auth = wxService.commenAuth(paramMap);
+		JSONObject jsonObject = JSON.parseObject(auth);
+		if("1".equals((String)jsonObject.get("code"))) {
+			return auth;
+		}
+		CusSelfInfo byOpenId = cusSelfInfoDao.getByOpenId(openid);
+		if(byOpenId!=null) {
+			return resumeService.getDetail(byOpenId.getId());
+		}else {
+			resultMap.put("code", "1");
+			resultMap.put("msg", "查询客户基本信息失败！");
+			resultMap.put("data", "");
+		}
+		return JSON.toJSONString(resultMap);
+	}
+	
 }
