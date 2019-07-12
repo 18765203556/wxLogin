@@ -17,6 +17,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.boot.security.server.dao.TCompanyDao;
+import com.boot.security.server.dao.TEmployCollectDao;
+import com.boot.security.server.dao.TEmployCommentDao;
+import com.boot.security.server.dao.TEmployDao;
+import com.boot.security.server.dao.TEmployDeliverDao;
 import com.boot.security.server.model.TCompany;
 import com.boot.security.server.page.table.PageTableHandler;
 import com.boot.security.server.page.table.PageTableHandler.CountHandler;
@@ -34,7 +38,15 @@ public class TCompanyController {
     
 	@Autowired
     private TCompanyDao tCompanyDao;
-
+	@Autowired
+    private TEmployDao tEmployDao;
+	@Autowired
+    private TEmployCommentDao tEmployCommentDao;
+	@Autowired
+	private TEmployCollectDao tEmployCollectDao;
+	@Autowired
+	private TEmployDeliverDao tEmployDeliverDao;
+	
     @PostMapping
     @ApiOperation(value = "保存")
     public TCompany save(@RequestBody TCompany tCompany) {
@@ -96,6 +108,15 @@ public class TCompanyController {
     @ApiOperation(value = "删除")
     public void delete(@PathVariable String id) {
         tCompanyDao.delete(id);
+        //删除用户不喜欢表
+        tEmployCommentDao.deleteAllByCompanyId(id);
+        //删除用户收藏
+        tEmployCollectDao.deleteAllByCompanyId(id);
+        //删除用户投递
+        tEmployDeliverDao.deleteAllByCompanyId(id);
+        //删除职位表
+        tEmployDao.deleteByCompanyId(id);
+       
     }
     /**
      * 展示所有
