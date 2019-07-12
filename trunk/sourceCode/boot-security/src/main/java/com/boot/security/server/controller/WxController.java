@@ -42,7 +42,7 @@ public class WxController {
 
 	@LogAnnotation
 	@PostMapping("/saveCusSelfInfo")
-	@ApiOperation(value = "用户基本信息保存接口")
+	@ApiOperation(value = "用户基本信息保存(修改)接口")
 	public String saveCusSelfInfo(@RequestBody String json) {
 		// 微信用户基本信息保存接口
 		log.info("微信用户基本信息保存接口>>>>>>>>>>>"+json);
