@@ -107,15 +107,19 @@ public class TCompanyController {
     @DeleteMapping("/{id}")
     @ApiOperation(value = "删除")
     public void delete(@PathVariable String id) {
-        tCompanyDao.delete(id);
-        //删除用户不喜欢表
-        tEmployCommentDao.deleteAllByCompanyId(id);
-        //删除用户收藏
-        tEmployCollectDao.deleteAllByCompanyId(id);
-        //删除用户投递
-        tEmployDeliverDao.deleteAllByCompanyId(id);
-        //删除职位表
-        tEmployDao.deleteByCompanyId(id);
+        try {
+			tCompanyDao.delete(id);
+			//删除用户不喜欢表
+			tEmployCommentDao.deleteAllByCompanyId(id);
+			//删除用户收藏
+			tEmployCollectDao.deleteAllByCompanyId(id);
+			//删除用户投递
+			tEmployDeliverDao.deleteAllByCompanyId(id);
+			//删除职位表
+			tEmployDao.deleteByCompanyId(id);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
        
     }
     /**
