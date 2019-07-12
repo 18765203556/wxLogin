@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.boot.security.server.model.SysDictionaries;
+import com.boot.security.server.model.TBanner;
 import com.boot.security.server.model.TComment;
 import com.boot.security.server.model.TCompany;
 import com.boot.security.server.model.TDynamic;
@@ -804,5 +805,53 @@ public class WeChatController extends BaseController{
 			return fail("系统出错了请联系管理员");
 		}
 		
+    }
+	/**
+	 * 	招聘轮播
+	 *  Description:
+	 *  @author xiaoding  DateTime 2019年7月11日 下午10:18:18
+	 *  @param req
+	 *  @param request
+	 *  @param pageSize
+	 *  @param page
+	 *  @return
+	 
+	 */
+	@GetMapping("/listBanner")
+    @ApiOperation(value = "招聘轮播")
+    public String listBanner(HttpServletRequest req,PageTableRequest request,Integer pageSize,Integer page) {
+		List<TBanner> dataList=null;
+		PageTableResponse response;
+		try {
+			//判断参数是否完整
+			Map<String, Object> params=request.getParams();
+			String bannerType=(String)params.get("bannerType");
+			if(bannerType==null||bannerType==""){
+				return fail("轮播类型字段未传递请校验参数！");
+			}
+			//如果没有分页参数表示查询所有
+			if(pageSize!=null && page!=null){
+				Integer offset=(page-1)*pageSize;
+				Integer limit=page*pageSize;
+				request.setOffset(offset);
+				request.setLimit(limit);
+			}else{
+			}
+			Map<String,Object> resultMap = new HashMap<String,Object>();
+			response = weChatService.listBanner(request);
+			dataList=(List<TBanner>)response.getData();
+			int totalCount=0;
+			if(dataList!=null){
+				totalCount=totalCount+dataList.size();
+			}
+			resultMap.put("totalCount", totalCount);
+			resultMap.put("list", dataList);
+			log.info(JSON.toJSONString(resultMap));
+			return success(resultMap);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return fail("系统出错了请联系管理员");
+		}
     }
 }
