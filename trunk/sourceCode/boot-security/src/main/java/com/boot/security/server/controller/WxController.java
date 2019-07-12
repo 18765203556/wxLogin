@@ -100,4 +100,16 @@ public class WxController {
 		log.info("大V认证接口--前台请求报文>>>>>>>>>>>"+JSON.toJSONString(paramMap));
 		return wxService.auditCheck(paramMap);
 	}
+	
+	@LogAnnotation
+	@PostMapping("/getDictByType")
+	@ApiOperation(value = "根据类型获取字典列表",notes="根据类型获取字典列表")
+	public String getDictByType(String type,String openid,String token) throws Exception{
+		HashMap<String,Object> paramMap = new HashMap<String,Object>();
+		paramMap.put("openId", openid);
+		paramMap.put("token", token);
+		paramMap.put("type", type);
+		log.info("获取字典列表接口--前台请求报文>>>>>>>>>>>"+JSON.toJSONString(paramMap));
+		return wxService.getDictByType(paramMap);
+	}
 }
