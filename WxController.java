@@ -75,7 +75,7 @@ public class WxController {
 	@LogAnnotation
 	@PostMapping("/login")
 	@ApiOperation(value = "微信用户登录",notes="前端通过临时登录凭证code获取session_key和openid等")
-	public String login(String code) {
+	public String login(@RequestBody String code) {
 		HashMap<String,Object> paramMap = new HashMap<String,Object>();
 		paramMap.put("code", code);
 		log.info("前台请求报文>>>>>>>>>>>"+JSON.toJSONString(paramMap));
@@ -85,10 +85,11 @@ public class WxController {
 	@LogAnnotation
 	@PostMapping("/getVerifyCode")
 	@ApiOperation(value = "获取短信验证码接口",notes="获取短信验证码")
-	public String getVerifyCode(String openid,String mobile) {
+	public String getVerifyCode(@RequestBody String json) {
 		HashMap<String,Object> paramMap = new HashMap<String,Object>();
-		paramMap.put("openId", openid);
-		paramMap.put("phone", mobile);
+		JSONObject jo=JSONObject.parseObject(json);
+		paramMap.put("openId", jo.getString("openid"));
+		paramMap.put("phone", jo.getString("mobile"));
 		log.info("获取短信验证码接口--前台请求报文>>>>>>>>>>>"+JSON.toJSONString(paramMap));
 		return wxService.getVerifyCode(paramMap);
 	}
@@ -96,11 +97,12 @@ public class WxController {
 	@LogAnnotation
 	@PostMapping("/bindMobile")
 	@ApiOperation(value = "用户手机号绑定接口",notes="用户手机号绑定接口")
-	public String bindMobile(String openid,String mobile,String token) {
+	public String bindMobile(@RequestBody String json) {
 		HashMap<String,Object> paramMap = new HashMap<String,Object>();
-		paramMap.put("openId", openid);
-		paramMap.put("token", token);
-		paramMap.put("mobile", mobile);
+		JSONObject jo=JSONObject.parseObject(json);
+		paramMap.put("openId", jo.getString("openid"));
+		paramMap.put("token", jo.getString("token"));
+		paramMap.put("mobile", jo.getString("mobile"));
 		log.info("用户手机号绑定接口--前台请求报文>>>>>>>>>>>"+JSON.toJSONString(paramMap));
 		return wxService.bindMobile(paramMap);
 	}
@@ -108,18 +110,20 @@ public class WxController {
 	@LogAnnotation
 	@PostMapping("/uploadFile")
 	@ApiOperation(value = "上传文件接口",notes="上传文件接口")
-	public String uploadFile(MultipartFile file,String openid,String token) throws Exception{
-		return wxService.uploadFile(file,openid,token);
+	public String uploadFile(@RequestBody String json, MultipartFile file) throws Exception{
+		JSONObject jo=JSONObject.parseObject(json);
+		return wxService.uploadFile(file,jo.getString("openid"),jo.getString("token"));
 	}
 	
 	@LogAnnotation
 	@PostMapping("/auditCheck")
 	@ApiOperation(value = "大V认证接口",notes="大V认证接口")
-	public String auditCheck(String picPath,String openid,String token) throws Exception{
+	public String auditCheck(@RequestBody String json) throws Exception{
 		HashMap<String,Object> paramMap = new HashMap<String,Object>();
-		paramMap.put("openId", openid);
-		paramMap.put("token", token);
-		paramMap.put("picPath", picPath);
+		JSONObject jo=JSONObject.parseObject(json);
+		paramMap.put("openId", jo.getString("openid"));
+		paramMap.put("token", jo.getString("token"));
+		paramMap.put("picPath", jo.getString("picPath"));
 		log.info("大V认证接口--前台请求报文>>>>>>>>>>>"+JSON.toJSONString(paramMap));
 		return wxService.auditCheck(paramMap);
 	}
@@ -127,11 +131,12 @@ public class WxController {
 	@LogAnnotation
 	@PostMapping("/getDictByType")
 	@ApiOperation(value = "根据类型获取字典列表",notes="根据类型获取字典列表")
-	public String getDictByType(String type,String openid,String token) throws Exception{
+	public String getDictByType(@RequestBody String json) throws Exception{
 		HashMap<String,Object> paramMap = new HashMap<String,Object>();
-		paramMap.put("openId", openid);
-		paramMap.put("token", token);
-		paramMap.put("type", type);
+		JSONObject jo=JSONObject.parseObject(json);
+		paramMap.put("openId", jo.getString("openid"));
+		paramMap.put("token", jo.getString("token"));
+		paramMap.put("type", jo.getString("type"));
 		log.info("获取字典列表接口--前台请求报文>>>>>>>>>>>"+JSON.toJSONString(paramMap));
 		return wxService.getDictByType(paramMap);
 	}
@@ -139,12 +144,13 @@ public class WxController {
 	@LogAnnotation
 	@PostMapping("/addCert")
 	@ApiOperation(value = "添加证书接口",notes="添加证书接口")
-	public String addCert(String certName,String certPath,String openid,String token) throws Exception{
+	public String addCert(@RequestBody String json) throws Exception{
 		HashMap<String,Object> paramMap = new HashMap<String,Object>();
-		paramMap.put("openId", openid);
-		paramMap.put("token", token);
-		paramMap.put("certPath", certPath);
-		paramMap.put("certName", certName);
+		JSONObject jo=JSONObject.parseObject(json);
+		paramMap.put("openId", jo.getString("openid"));
+		paramMap.put("token", jo.getString("token"));
+		paramMap.put("certPath", jo.getString("certPath"));
+		paramMap.put("certName", jo.getString("certName"));
 		log.info("保存证书接口--前台请求报文>>>>>>>>>>>"+JSON.toJSONString(paramMap));
 		return cusService.addCert(paramMap);
 	}
@@ -152,12 +158,13 @@ public class WxController {
 	@LogAnnotation
 	@PostMapping("/delCert")
 	@ApiOperation(value = "删除证书接口",notes="删除证书接口")
-	public String delCert(String id,String openid,String token) throws Exception{
+	public String delCert(@RequestBody String json) throws Exception{
 		Map<String,Object> resultMap = new HashMap<String,Object>();
 		HashMap<String,Object> paramMap = new HashMap<String,Object>();
-		paramMap.put("openId", openid);
-		paramMap.put("token", token);
-		paramMap.put("id", id);
+		JSONObject jo=JSONObject.parseObject(json);
+		paramMap.put("openId", jo.getString("openid"));
+		paramMap.put("token", jo.getString("token"));
+		paramMap.put("id", jo.getString("id"));
 		log.info("删除证书接口--前台请求报文>>>>>>>>>>>"+JSON.toJSONString(paramMap));
 		// 微信服务鉴权
 		String auth = wxService.commenAuth(paramMap);
@@ -165,7 +172,7 @@ public class WxController {
 		if("1".equals((String)jsonObject.get("code"))) {
 			return auth;
 		}
-		int delete = tCertificateDao.delete(id);
+		int delete = tCertificateDao.delete(jo.getString("id"));
 		if(1==delete) {
 			// 证书删除成功
 			resultMap.put("data", "");
@@ -185,11 +192,12 @@ public class WxController {
 	@LogAnnotation
 	@PostMapping("/addSkill")
 	@ApiOperation(value = "添加/修改技能接口",notes="添加/修改技能接口")
-	public String addSkill(String skillCodes,String openid,String token) throws Exception{
+	public String addSkill(@RequestBody String json) throws Exception{
 		HashMap<String,Object> paramMap = new HashMap<String,Object>();
-		paramMap.put("openId", openid);
-		paramMap.put("token", token);
-		paramMap.put("skillCodes", skillCodes);
+		JSONObject jo=JSONObject.parseObject(json);
+		paramMap.put("openId", jo.getString("openid"));
+		paramMap.put("token", jo.getString("token"));
+		paramMap.put("skillCodes", jo.getString("skillCodes"));
 		log.info("保存技能接口--前台请求报文>>>>>>>>>>>"+JSON.toJSONString(paramMap));
 		return cusService.addSkill(paramMap);
 	}
@@ -197,11 +205,12 @@ public class WxController {
 	@LogAnnotation
 	@PostMapping("/detail")
 	@ApiOperation(value = "我的简历/预览简历接口",notes="我的简历/预览简历接口")
-	public String detail(String openid,String token) throws Exception{
+	public String detail(@RequestBody String json) throws Exception{
 		Map<String,Object> resultMap = new HashMap<String,Object>();
 		HashMap<String,Object> paramMap = new HashMap<String,Object>();
-		paramMap.put("openId", openid);
-		paramMap.put("token", token);
+		JSONObject jo=JSONObject.parseObject(json);
+		paramMap.put("openId", jo.getString("openid"));
+		paramMap.put("token", jo.getString("token"));
 		log.info("我的简历/预览简历接口--前台请求报文>>>>>>>>>>>"+JSON.toJSONString(paramMap));
 		// 微信服务鉴权
 		String auth = wxService.commenAuth(paramMap);
@@ -209,7 +218,7 @@ public class WxController {
 		if("1".equals((String)jsonObject.get("code"))) {
 			return auth;
 		}
-		CusSelfInfo byOpenId = cusSelfInfoDao.getByOpenId(openid);
+		CusSelfInfo byOpenId = cusSelfInfoDao.getByOpenId(jo.getString("openid"));
 		if(byOpenId!=null) {
 			return resumeService.getDetail(byOpenId.getId());
 		}else {
@@ -231,12 +240,13 @@ public class WxController {
 	@LogAnnotation
 	@PostMapping("/delService")
 	@ApiOperation(value = "删除服役履历接口",notes="删除服役履历接口")
-	public String delService(String id,String openid,String token) throws Exception{
+	public String delService(@RequestBody String json) throws Exception{
 		Map<String,Object> resultMap = new HashMap<String,Object>();
 		HashMap<String,Object> paramMap = new HashMap<String,Object>();
-		paramMap.put("openId", openid);
-		paramMap.put("token", token);
-		paramMap.put("id", id);
+		JSONObject jo=JSONObject.parseObject(json);
+		paramMap.put("openId", jo.getString("openid"));
+		paramMap.put("token", jo.getString("token"));
+		paramMap.put("id", jo.getString("id"));
 		log.info("删除服役履历接口--前台请求报文>>>>>>>>>>>"+JSON.toJSONString(paramMap));
 		// 微信服务鉴权
 		String auth = wxService.commenAuth(paramMap);
@@ -244,7 +254,7 @@ public class WxController {
 		if("1".equals((String)jsonObject.get("code"))) {
 			return auth;
 		}
-		int delete = tServiceHisDao.delete(id);
+		int delete = tServiceHisDao.delete(jo.getString("id"));
 		if(1==delete) {
 			// 证书删除成功
 			resultMap.put("data", "");
@@ -272,12 +282,13 @@ public class WxController {
 	@LogAnnotation
 	@PostMapping("/delWork")
 	@ApiOperation(value = "删除社会工作经历接口",notes="删除社会工作经历接口")
-	public String delWork(String id,String openid,String token) throws Exception{
+	public String delWork(@RequestBody String json) throws Exception{
 		Map<String,Object> resultMap = new HashMap<String,Object>();
 		HashMap<String,Object> paramMap = new HashMap<String,Object>();
-		paramMap.put("openId", openid);
-		paramMap.put("token", token);
-		paramMap.put("id", id);
+		JSONObject jo=JSONObject.parseObject(json);
+		paramMap.put("openId", jo.getString("openid"));
+		paramMap.put("token", jo.getString("token"));
+		paramMap.put("id", jo.getString("id"));
 		log.info("删除社会工作经历接口--前台请求报文>>>>>>>>>>>"+JSON.toJSONString(paramMap));
 		// 微信服务鉴权
 		String auth = wxService.commenAuth(paramMap);
@@ -285,7 +296,7 @@ public class WxController {
 		if("1".equals((String)jsonObject.get("code"))) {
 			return auth;
 		}
-		int delete = tWorkHisDao.delete(id);
+		int delete = tWorkHisDao.delete(jo.getString("id"));
 		if(1==delete) {
 			// 证书删除成功
 			resultMap.put("data", "");
