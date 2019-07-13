@@ -101,9 +101,10 @@ public class WxController {
 	public String bindMobile(@RequestBody String json) {
 		HashMap<String,Object> paramMap = new HashMap<String,Object>();
 		JSONObject jo=JSONObject.parseObject(json);
+		paramMap.put("iv",jo.getString("iv"));
+		paramMap.put("encryptedData",jo.getString("encryptedData"));
 		paramMap.put("openId", jo.getString("openid"));
 		paramMap.put("token", jo.getString("token"));
-		paramMap.put("mobile", jo.getString("mobile"));
 		log.info("用户手机号绑定接口--前台请求报文>>>>>>>>>>>"+JSON.toJSONString(paramMap));
 		return wxService.bindMobile(paramMap);
 	}
