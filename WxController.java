@@ -10,8 +10,10 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.multipart.commons.CommonsMultipartFile;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
@@ -112,10 +114,10 @@ public class WxController {
 
 	@LogAnnotation
 	@ApiOperation(value = "上传文件接口",notes="上传文件接口")
-	@RequestMapping(value="/uploadFile",consumes="multipart/*",headers="content-type=multipart/data",method=RequestMethod.POST)
-	public String uploadFile(@RequestBody String json, MultipartFile file) throws Exception{
-		JSONObject jo=JSONObject.parseObject(json);
-		return wxService.uploadFile(file,jo.getString("openid"),jo.getString("token"));
+	@RequestMapping(value="/uploadFile", method=RequestMethod.POST)
+	public String uploadFile(@RequestParam("file") CommonsMultipartFile file,@RequestParam String openid,@RequestParam String token) throws Exception{
+		//JSONObject jo=JSONObject.parseObject(json);
+		return wxService.uploadFile(file,openid,token);
 	}
 	
 	@LogAnnotation
