@@ -63,7 +63,12 @@ public class FileController {
 		layuiFile.setCode(0);
 		LayuiFileData data = new LayuiFileData();
 		layuiFile.setData(data);
-		data.setSrc(domain + "/statics" + fileInfo.getUrl());
+		if(domain!=null){
+			data.setSrc(domain + "/statics" + fileInfo.getUrl());
+		}else{
+			data.setSrc( "/statics" + fileInfo.getUrl());
+		}
+		
 		data.setTitle(file.getOriginalFilename());
 
 		return layuiFile;
