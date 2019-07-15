@@ -115,7 +115,7 @@ public class WxController {
 	@LogAnnotation
 	@ApiOperation(value = "上传文件接口",notes="上传文件接口")
 	@RequestMapping(value="/uploadFile", method=RequestMethod.POST)
-	public String uploadFile(@RequestParam("file") CommonsMultipartFile file,@RequestParam String openid,@RequestParam String token) throws Exception{
+	public String uploadFile(@RequestParam("file") MultipartFile file,@RequestParam String openid,@RequestParam String token) throws Exception{
 		//JSONObject jo=JSONObject.parseObject(json);
 		return wxService.uploadFile(file,openid,token);
 	}
