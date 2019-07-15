@@ -156,6 +156,7 @@ public class WxController {
 		paramMap.put("token", jo.getString("token"));
 		paramMap.put("certPath", jo.getString("certPath"));
 		paramMap.put("certName", jo.getString("certName"));
+		paramMap.put("id", jo.getString("id"));
 		log.info("保存证书接口--前台请求报文>>>>>>>>>>>"+JSON.toJSONString(paramMap));
 		return cusService.addCert(paramMap);
 	}
