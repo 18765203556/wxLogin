@@ -13,7 +13,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.multipart.commons.CommonsMultipartFile;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
@@ -105,6 +104,7 @@ public class WxController {
 		HashMap<String,Object> paramMap = new HashMap<String,Object>();
 		JSONObject jo=JSONObject.parseObject(json);
 		paramMap.put("iv",jo.getString("iv"));
+		paramMap.put("sessionKey",jo.getString("sessionKey"));
 		paramMap.put("encryptedData",jo.getString("encryptedData"));
 		paramMap.put("openId", jo.getString("openid"));
 		paramMap.put("token", jo.getString("token"));
@@ -225,7 +225,7 @@ public class WxController {
 		}
 		CusSelfInfo byOpenId = cusSelfInfoDao.getByOpenId(jo.getString("openid"));
 		if(byOpenId!=null) {
-			return resumeService.getDetail(byOpenId.getId());
+			return resumeService.getDetail(byOpenId.getId(),jo.getString("openid"));
 		}else {
 			resultMap.put("code", "1");
 			resultMap.put("msg", "查询客户基本信息失败！");
