@@ -14,7 +14,9 @@ import com.boot.security.server.page.table.PageTableResponse;
 import com.boot.security.server.service.ResumeService;
 import com.boot.security.server.page.table.PageTableHandler.CountHandler;
 import com.boot.security.server.page.table.PageTableHandler.ListHandler;
+import com.boot.security.server.dao.CusSelfInfoDao;
 import com.boot.security.server.dao.ResumeDao;
+import com.boot.security.server.model.CusSelfInfo;
 import com.boot.security.server.model.TEmploy;
 
 import io.swagger.annotations.ApiOperation;
@@ -28,6 +30,9 @@ public class ResumeController {
     
     @Autowired
     private ResumeService resumeService;
+    
+    @Autowired
+	private CusSelfInfoDao cusSelfInfoDao;
 
    
     @GetMapping
@@ -69,7 +74,7 @@ public class ResumeController {
     @GetMapping("/detail/{cusSelfId}")
     @ApiOperation(value = "根据客户基本信息id和职位id查询详情")
     public String getDetail(@PathVariable String cusSelfId) {
-    	
-    	return resumeService.getDetail(cusSelfId);
+    	CusSelfInfo detail = cusSelfInfoDao.getById(cusSelfId);
+    	return resumeService.getDetail(cusSelfId,detail.getOpenId());
     }
 }
