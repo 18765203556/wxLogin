@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -110,8 +111,8 @@ public class WxController {
 	}
 
 	@LogAnnotation
-	@PostMapping("/uploadFile")
 	@ApiOperation(value = "上传文件接口",notes="上传文件接口")
+	@RequestMapping(value="/uploadFile",consumes="multipart/*",headers="content-type=multipart/data",method=RequestMethod.POST)
 	public String uploadFile(@RequestBody String json, MultipartFile file) throws Exception{
 		JSONObject jo=JSONObject.parseObject(json);
 		return wxService.uploadFile(file,jo.getString("openid"),jo.getString("token"));
