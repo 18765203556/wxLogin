@@ -1,11 +1,13 @@
 package com.boot.security.server.controller;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -22,9 +24,14 @@ import com.boot.security.server.dao.TCertificateDao;
 import com.boot.security.server.dao.TServiceHisDao;
 import com.boot.security.server.dao.TWorkHisDao;
 import com.boot.security.server.model.CusSelfInfo;
+import com.boot.security.server.model.TDynamic;
+import com.boot.security.server.page.table.PageTableRequest;
+import com.boot.security.server.page.table.PageTableResponse;
 import com.boot.security.server.service.CusService;
 import com.boot.security.server.service.ResumeService;
+import com.boot.security.server.service.WeChatService;
 import com.boot.security.server.service.WxService;
+import com.boot.security.server.utils.BaseController;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -39,7 +46,7 @@ import io.swagger.annotations.ApiOperation;
 
 @RestController
 @RequestMapping("/wx")
-public class WxController {
+public class WxController extends BaseController{
 	
 	private static final Logger log = LoggerFactory.getLogger("adminLogger");
 	
@@ -63,6 +70,8 @@ public class WxController {
 	
 	@Autowired
 	private TWorkHisDao tWorkHisDao;
+	@Autowired
+	private WeChatService weChatService;
 	
 
 	@LogAnnotation
@@ -318,5 +327,50 @@ public class WxController {
 		}
 		return JSON.toJSONString(resultMap);
 	}
-	
+	/**
+	 * 动态展示
+	 *  Description:
+	 *  @author xiaoding  DateTime 2019年7月10日 下午2:28:01
+	 *  @param request
+	 *  @param pageSize
+	 *  @param page
+	 *  @return
+	 
+	 */
+	@GetMapping("/listDynamic")
+    @ApiOperation(value = "展示所有动态列表")
+    public String listDynamic(PageTableRequest request,Integer pageSize,Integer page) {
+		List<TDynamic> dataList=null;
+		PageTableResponse response;
+		try {
+			if(pageSize!=null && page!=null){
+				Integer offset=(page-1)*pageSize;
+				Integer limit=page*pageSize;
+				request.setOffset(offset);
+				request.setLimit(limit);
+			}else{
+				return fail("分页参数不正确，请核实参数");
+			}
+			Map<String,Object> resultMap = new HashMap<String,Object>();
+			response = weChatService.listDynamic(request);
+			String news=weChatService.listNewsByOne();
+			dataList=(List<TDynamic>)response.getData();
+			int totalCount=0;
+			if(news!=null){
+				totalCount=1;
+			}
+			if(dataList!=null){
+				totalCount=totalCount+dataList.size();
+			}
+			resultMap.put("news", news);
+			resultMap.put("totalCount", totalCount);
+			resultMap.put("dynamic", dataList);
+			log.info(JSON.toJSONString(resultMap));
+			return success(resultMap);
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.info(JSON.toJSONString(e));
+			 return fail("系统异常请联系管理员！");
+		}
+    }
 }
