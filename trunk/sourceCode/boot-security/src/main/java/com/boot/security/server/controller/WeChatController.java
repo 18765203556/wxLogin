@@ -19,6 +19,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.boot.security.server.dao.CusSelfInfoDao;
+import com.boot.security.server.model.CusSelfInfo;
 import com.boot.security.server.model.SysDictionaries;
 import com.boot.security.server.model.TBanner;
 import com.boot.security.server.model.TComment;
@@ -32,6 +34,7 @@ import com.boot.security.server.page.table.PageTableRequest;
 import com.boot.security.server.page.table.PageTableResponse;
 import com.boot.security.server.service.CusService;
 import com.boot.security.server.service.WeChatService;
+import com.boot.security.server.service.WxService;
 import com.boot.security.server.utils.BaseController;
 import com.boot.security.server.utils.Const;
 
@@ -56,24 +59,11 @@ public class WeChatController extends BaseController{
 	private WeChatService weChatService;
 	@Autowired
 	private CusService cusService;
-	/**
-	 * 获取用户id
-	 *  Description:
-	 *  @author xiaoding  DateTime 2019年7月9日 下午10:02:56
-	 *  @param request
-	 *  @param id
-	 *  @return
-	 
-	 */
-	@GetMapping("/exampale")
-    @ApiOperation(value = "根据id获取")
-    public String get(HttpServletRequest request, String id) {
-		System.out.println("fangwenkongzhiWXSaveController!!!!!!!!!!!");
-		String userId=(String)request.getAttribute("userId");
-		String openId=request.getParameter("openId");
-		System.out.println(openId);
-        return userId;
-    }
+	@Autowired
+	 private CusSelfInfoDao cusSelfInfoDao;
+	 
+	 @Autowired
+	 private WxService wxService;
 	/**
 	 * 动态展示
 	 *  Description:
@@ -84,7 +74,7 @@ public class WeChatController extends BaseController{
 	 *  @return
 	 
 	 */
-	@GetMapping("/listDynamic")
+	@PostMapping("/listDynamic")
     @ApiOperation(value = "展示所有动态列表")
     public String listDynamic(PageTableRequest request,Integer pageSize,Integer page) {
 		List<TDynamic> dataList=null;
@@ -132,9 +122,16 @@ public class WeChatController extends BaseController{
 	
 	@GetMapping("/dynamicDetail")
     @ApiOperation(value = "展示所有动态列表")
-    public String dynamicDetail(String id) {
+    public String dynamicDetail(String id,String openid,String token,HttpServletRequest request) {
 		TDynamic data;
 		try {
+			
+			//获取用户信息
+			JSONObject jsonObject=getUserId(openid, token,request);
+			if(jsonObject!=null &&jsonObject.containsKey("msg")){
+				return JSON.toJSONString(jsonObject);
+			}
+			
 			data = weChatService.dynamicDetail(id);
 			log.info(JSON.toJSONString(data));
 			 return success(data);
@@ -160,6 +157,15 @@ public class WeChatController extends BaseController{
     public String saveDynamic(@RequestBody String json,HttpServletRequest request) {
 		try {
 			JSONObject data=JSONObject.parseObject(json);
+			
+			//获取用户信息
+			String token=getToken(request);
+			String openId=data.getString("openid");
+			JSONObject jsonObject=getUserId(openId, token,request);
+			if(jsonObject!=null &&jsonObject.containsKey("msg")){
+				return JSON.toJSONString(jsonObject);
+			}
+			String userId=jsonObject.getString("userId");
 			TDynamic entity=new TDynamic();
 			//获取id
 			entity.setId(UUID.randomUUID().toString().replaceAll("-", ""));
@@ -169,8 +175,6 @@ public class WeChatController extends BaseController{
 			entity.setStatus(data.getString("status"));
 			//动态与新闻的区分
 			entity.setDynamicType(data.getString("dynamicType"));
-			//获取到的用户id
-			String userId=(String)request.getAttribute("userId");
 			entity.setCreateUser(userId);
 			entity.setCreateTime(new Date());
 			 weChatService.saveDynamic(entity);
@@ -196,6 +200,15 @@ public class WeChatController extends BaseController{
     public String saveComment(@RequestBody String json,HttpServletRequest request) {
 		try {
 			JSONObject data=JSONObject.parseObject(json);
+			//获取用户信息
+			String token=getToken(request);
+			String openId=data.getString("openid");
+			JSONObject jsonObject=getUserId(openId, token,request);
+			if(jsonObject!=null &&jsonObject.containsKey("msg")){
+				return JSON.toJSONString(jsonObject);
+			}
+			String userId=jsonObject.getString("userId");
+			
 			TComment entity=new TComment();
 			//获取id
 			entity.setId(UUID.randomUUID().toString().replaceAll("-", ""));
@@ -206,7 +219,7 @@ public class WeChatController extends BaseController{
 			//是否为评论0为评论1位点赞
 			entity.setGiveUp(data.getString("giveUp"));
 			//获取到的用户id
-			String userId=(String)request.getAttribute("userId");
+			//String userId=(String)request.getAttribute("userId");
 			//评论用户
 			entity.setCommentUser(userId);
 			//创建人
@@ -235,8 +248,14 @@ public class WeChatController extends BaseController{
 	
 	@GetMapping("/listClassification")
     @ApiOperation(value = "招聘类型分类接口")
-    public String listClassification() {
+    public String listClassification(String openid,String token,HttpServletRequest request) {
 		try {
+			//获取用户信息
+			JSONObject jsonObject=getUserId(openid, token,request);
+			if(jsonObject!=null &&jsonObject.containsKey("msg")){
+				return JSON.toJSONString(jsonObject);
+			}
+			
 			 String result=weChatService.listClassification();
 			 return success(result);
 		} catch (Exception e) {
@@ -259,8 +278,14 @@ public class WeChatController extends BaseController{
 	 */
 	@GetMapping("/listCity")
     @ApiOperation(value = " 区域列表")
-    public String listCity() {
+    public String listCity(String id,String openid,String token,HttpServletRequest request) {
 		try {
+			//获取用户信息
+			JSONObject jsonObject=getUserId(openid, token,request);
+			if(jsonObject!=null &&jsonObject.containsKey("msg")){
+				return JSON.toJSONString(jsonObject);
+			}
+			
 			List<SysDictionaries> resultList=weChatService.listCity(Const.CHILDCITY);
 			if(resultList!=null){
 				return success(JSON.toJSONString(resultList));
@@ -285,8 +310,13 @@ public class WeChatController extends BaseController{
 	 */
 	@GetMapping("/listCompanyType")
     @ApiOperation(value = "公司类型")
-    public String listCompanyType() {
+    public String listCompanyType(String openid,String token,HttpServletRequest request) {
 		try {
+			//获取用户信息
+			JSONObject jsonObject=getUserId(openid, token,request);
+			if(jsonObject!=null &&jsonObject.containsKey("msg")){
+				return JSON.toJSONString(jsonObject);
+			}
 			List<SysDictionaries> resultList=weChatService.listCompanyType(Const.COMPANYTYPE);
 			if(resultList!=null){
 				return success(JSON.toJSONString(resultList));
@@ -313,11 +343,18 @@ public class WeChatController extends BaseController{
 	 */
 	@GetMapping("/listEmploy")
     @ApiOperation(value = "工作筛选")
-    public String listEmploy(HttpServletRequest req,PageTableRequest request,Integer pageSize,Integer page) {
+    public String listEmploy(HttpServletRequest req,PageTableRequest request,Integer pageSize,Integer page,String openid,String token) {
 		List<TEmploy> dataList=null;
 		PageTableResponse response;
 		try {
-			String userId=(String)req.getAttribute("userId");
+			
+			//获取用户信息
+			JSONObject jsonObject=getUserId(openid, token,req);
+			if(jsonObject!=null &&jsonObject.containsKey("msg")){
+				return JSON.toJSONString(jsonObject);
+			}
+			String userId=jsonObject.getString("userId");
+//			String userId=(String)req.getAttribute("userId");
 			Map<String, Object> params=request.getParams();
 			if(params!=null){
 				params.put("userId", userId);
@@ -361,8 +398,15 @@ public class WeChatController extends BaseController{
 	 */
 	@GetMapping("/companyDetail")
     @ApiOperation(value = "公司详情")
-    public String companyDetail(String id) {
+    public String companyDetail(String id,String openid,String token,HttpServletRequest request) {
 		try {
+			
+			//获取用户信息
+			JSONObject jsonObject=getUserId(openid, token,request);
+			if(jsonObject!=null &&jsonObject.containsKey("msg")){
+				return JSON.toJSONString(jsonObject);
+			}
+			
 			TCompany resultList=weChatService.companyDetail(id);
 			if(resultList!=null){
 				return success(JSON.toJSONString(resultList));
@@ -394,7 +438,18 @@ public class WeChatController extends BaseController{
 			//获取id
 			entity.setId(UUID.randomUUID().toString().replaceAll("-", ""));
 			//获取到的用户id
-			String userId=(String)request.getAttribute("userId");
+			
+			//获取用户信息
+			String token=getToken(request);
+			String openId=data.getString("openid");
+			JSONObject jsonObject=getUserId(openId, token,request);
+			if(jsonObject!=null &&jsonObject.containsKey("msg")){
+				return JSON.toJSONString(jsonObject);
+			}
+			String userId=jsonObject.getString("userId");
+			
+			
+//			String userId=(String)request.getAttribute("userId");
 			String employId=data.getString("employId");
 			entity.setEmployId(employId);
 			//评论用户
@@ -423,11 +478,19 @@ public class WeChatController extends BaseController{
 	 */
 	@GetMapping("/listCollect")
     @ApiOperation(value = "查看我的收藏")
-    public String listCollect(HttpServletRequest req,PageTableRequest request,Integer pageSize,Integer page) {
+    public String listCollect(HttpServletRequest req,PageTableRequest request,Integer pageSize,Integer page,String openid,String token) {
 		List<TEmploy> dataList=null;
 		PageTableResponse response;
 		try {
-			String userId=(String)req.getAttribute("userId");
+//			String userId=(String)req.getAttribute("userId");
+			
+			//获取用户信息
+			JSONObject jsonObject=getUserId(openid, token,req);
+			if(jsonObject!=null &&jsonObject.containsKey("msg")){
+				return JSON.toJSONString(jsonObject);
+			}
+			String userId=jsonObject.getString("userId");
+			
 			Map<String, Object> params=request.getParams();
 			if(params!=null){
 				params.put("cusSelfId", userId);
@@ -480,7 +543,16 @@ public class WeChatController extends BaseController{
 			//获取id
 			entity.setId(UUID.randomUUID().toString().replaceAll("-", ""));
 			//获取到的用户id
-			String userId=(String)request.getAttribute("userId");
+//			String userId=(String)request.getAttribute("userId");
+			//获取用户信息
+			String token=getToken(request);
+			String openId=data.getString("openid");
+			JSONObject jsonObject=getUserId(openId, token,request);
+			if(jsonObject!=null &&jsonObject.containsKey("msg")){
+				return JSON.toJSONString(jsonObject);
+			}
+			String userId=jsonObject.getString("userId");
+			
 			String employId=data.getString("employId");
 			entity.setEmployId(employId);
 			//评论用户
@@ -509,11 +581,19 @@ public class WeChatController extends BaseController{
 	 */
 	@GetMapping("/listDeliver")
     @ApiOperation(value = "查看我的投递")
-    public String listDeliver(HttpServletRequest req,PageTableRequest request,Integer pageSize,Integer page) {
+    public String listDeliver(HttpServletRequest req,PageTableRequest request,Integer pageSize,Integer page,String openid,String token) {
 		List<TEmploy> dataList=null;
 		PageTableResponse response;
 		try {
-			String userId=(String)req.getAttribute("userId");
+//			String userId=(String)req.getAttribute("userId");
+			
+			//获取用户信息
+			JSONObject jsonObject=getUserId(openid, token,req);
+			if(jsonObject!=null &&jsonObject.containsKey("msg")){
+				return JSON.toJSONString(jsonObject);
+			}
+			String userId=jsonObject.getString("userId");
+			
 			Map<String, Object> params=request.getParams();
 			if(params!=null){
 				params.put("cusSelfId", userId);
@@ -558,9 +638,17 @@ public class WeChatController extends BaseController{
 	
 	@GetMapping("/cancelCollect")
     @ApiOperation(value = "取消收藏")
-    public String cancelCollect(String id,HttpServletRequest request) {
+    public String cancelCollect(String id,HttpServletRequest request,String openid,String token) {
 		try {
-			String userId=(String)request.getAttribute("userId");
+//			String userId=(String)request.getAttribute("userId");
+			
+			//获取用户信息
+			JSONObject jsonObject=getUserId(openid, token,request);
+			if(jsonObject!=null &&jsonObject.containsKey("msg")){
+				return JSON.toJSONString(jsonObject);
+			}
+			String userId=jsonObject.getString("userId");
+			
 			String result=weChatService.cancelCollect(id,userId);
 			return success(result);
 		} catch (Exception e) {
@@ -580,11 +668,19 @@ public class WeChatController extends BaseController{
 	 */
 	@GetMapping("/listAllGiveUp")
     @ApiOperation(value = "查看我的我点赞的动态")
-    public String listAllGiveUp(HttpServletRequest req,PageTableRequest request,Integer pageSize,Integer page) {
+    public String listAllGiveUp(HttpServletRequest req,PageTableRequest request,Integer pageSize,Integer page,String openid,String token) {
 		List<TEmploy> dataList=null;
 		PageTableResponse response;
 		try {
-			String userId=(String)req.getAttribute("userId");
+			
+			//获取用户信息
+			JSONObject jsonObject=getUserId(openid, token,req);
+			if(jsonObject!=null &&jsonObject.containsKey("msg")){
+				return JSON.toJSONString(jsonObject);
+			}
+			String userId=jsonObject.getString("userId");
+			
+//			String userId=(String)req.getAttribute("userId");
 			Map<String, Object> params=request.getParams();
 			if(params!=null){
 				params.put("userId", userId);
@@ -628,11 +724,19 @@ public class WeChatController extends BaseController{
 	 */
 	@GetMapping("/listDynamicByMe")
     @ApiOperation(value = "我发布的动态")
-    public String listDynamicByMe(HttpServletRequest req,PageTableRequest request,Integer pageSize,Integer page) {
+    public String listDynamicByMe(HttpServletRequest req,PageTableRequest request,Integer pageSize,Integer page,String openid,String token) {
 		List<TDynamic> dataList=null;
 		PageTableResponse response;
 		try {
-			String userId=(String)req.getAttribute("userId");
+//			String userId=(String)req.getAttribute("userId");
+			
+			//获取用户信息
+			JSONObject jsonObject=getUserId(openid, token,req);
+			if(jsonObject!=null &&jsonObject.containsKey("msg")){
+				return JSON.toJSONString(jsonObject);
+			}
+			String userId=jsonObject.getString("userId");
+			
 			Map<String, Object> params=request.getParams();
 			if(params!=null){
 				params.put("userId", userId);
@@ -680,8 +784,18 @@ public class WeChatController extends BaseController{
 			TEmployComment entity=new TEmployComment();
 			//获取id
 			entity.setId(UUID.randomUUID().toString().replaceAll("-", ""));
+			
+			//获取用户信息
+			String token=getToken(request);
+			String openId=data.getString("openid");
+			JSONObject jsonObject=getUserId(openId, token,request);
+			if(jsonObject!=null &&jsonObject.containsKey("msg")){
+				return JSON.toJSONString(jsonObject);
+			}
+			String userId=jsonObject.getString("userId");
+			
 			//获取到的用户id
-			String userId=(String)request.getAttribute("userId");
+//			String userId=(String)request.getAttribute("userId");
 			String employId=data.getString("employId");
 			entity.setEmployId(employId);
 			//评论用户
@@ -712,14 +826,23 @@ public class WeChatController extends BaseController{
 	 */
 	@GetMapping("/listYouLikeEmploy")
     @ApiOperation(value = "猜你喜欢列表分页")
-    public String listYouLikeEmploy(HttpServletRequest req,PageTableRequest request,Integer pageSize,Integer page) {
+    public String listYouLikeEmploy(HttpServletRequest req,PageTableRequest request,Integer pageSize,Integer page,String openid,String token) {
 		List<TEmploy> dataList=null;
 		PageTableResponse response;
 		try {
-			String userId=(String)req.getAttribute("userId");
+//			String userId=(String)req.getAttribute("userId");
 			Map<String, Object> params=request.getParams();
 			//猜你喜欢保存在用户信息里面的喜欢的职位类型多选，已分号分隔
-			String employTypes=(String)req.getAttribute("employTypes");
+//			String employTypes=(String)req.getAttribute("employTypes");
+			
+			//获取用户信息
+			JSONObject jsonObject=getUserId(openid, token,req);
+			if(jsonObject!=null &&jsonObject.containsKey("msg")){
+				return JSON.toJSONString(jsonObject);
+			}
+			String userId=jsonObject.getString("userId");
+			String employTypes=jsonObject.getString("employTypes");
+			
 			if(employTypes!=null){
 				if(employTypes.indexOf(";")>-1){
 					employTypes="('"+employTypes.replace(";", "';'")+"')";
@@ -775,10 +898,19 @@ public class WeChatController extends BaseController{
 	 */
 	@GetMapping("/listCompany")
     @ApiOperation(value = "所有公司列表")
-    public String listCompany(HttpServletRequest req,PageTableRequest request,Integer pageSize,Integer page) {
+    public String listCompany(HttpServletRequest req,PageTableRequest request,Integer pageSize,Integer page,String openid,String token) {
 		List<TCompany> dataList=null;
 		PageTableResponse response;
 		try {
+			
+
+			//获取用户信息
+			JSONObject jsonObject=getUserId(openid, token,req);
+			if(jsonObject!=null &&jsonObject.containsKey("msg")){
+				return JSON.toJSONString(jsonObject);
+			}
+			
+			
 			if(pageSize!=null && page!=null){
 				Integer offset=(page-1)*pageSize;
 				Integer limit=page*pageSize;
@@ -819,10 +951,17 @@ public class WeChatController extends BaseController{
 	 */
 	@GetMapping("/listBanner")
     @ApiOperation(value = "招聘轮播")
-    public String listBanner(HttpServletRequest req,PageTableRequest request,Integer pageSize,Integer page) {
+    public String listBanner(HttpServletRequest req,PageTableRequest request,Integer pageSize,Integer page,String openid,String token) {
 		List<TBanner> dataList=null;
 		PageTableResponse response;
 		try {
+			
+			//获取用户信息
+			JSONObject jsonObject=getUserId(openid, token,req);
+			if(jsonObject!=null &&jsonObject.containsKey("msg")){
+				return JSON.toJSONString(jsonObject);
+			}
+			
 			//判断参数是否完整
 			Map<String, Object> params=request.getParams();
 			String bannerType=(String)params.get("bannerType");
@@ -854,4 +993,37 @@ public class WeChatController extends BaseController{
 			return fail("系统出错了请联系管理员");
 		}
     }
+	/**
+	 * 获取用户id
+	 *  Description:
+	 *  @author xiaoding  DateTime 2019年7月16日 下午3:43:41
+	 *  @param openId
+	 *  @param token
+	 *  @return
+	 
+	 */
+	private  JSONObject getUserId(String openId,String token,HttpServletRequest request){
+		Map<String,Object> paramMap = new HashMap<String,Object>();
+		paramMap.put("token", token);
+		paramMap.put("openId", openId);
+		String auth = wxService.commenAuth(paramMap);
+		JSONObject jsonObject = JSON.parseObject(auth);
+		
+		if("0".equals((String)jsonObject.get("code"))) {
+			jsonObject= new JSONObject();
+			CusSelfInfo cusSelfInfo=cusSelfInfoDao.getByOpenId(openId);
+			if(cusSelfInfo!=null){
+				String userId=cusSelfInfo.getId();
+				String employTypes=cusSelfInfo.getEmployTypes();
+				jsonObject.put("userId", userId);
+				jsonObject.put("employTypes", employTypes);
+			}else{
+				jsonObject.put("msg", "user is null");
+				jsonObject.put("code", "1");
+				jsonObject.put("data", "");
+			}
+			return jsonObject;
+		}
+		return jsonObject;
+	}
 }
