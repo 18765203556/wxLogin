@@ -159,7 +159,7 @@ public class WeChatController extends BaseController{
 			JSONObject data=JSONObject.parseObject(json);
 			
 			//获取用户信息
-			String token=getToken(request);
+			String token=getToken(json);
 			String openId=data.getString("openid");
 			JSONObject jsonObject=getUserId(openId, token,request);
 			if(jsonObject!=null &&jsonObject.containsKey("msg")){
@@ -201,7 +201,7 @@ public class WeChatController extends BaseController{
 		try {
 			JSONObject data=JSONObject.parseObject(json);
 			//获取用户信息
-			String token=getToken(request);
+			String token=getToken(json);
 			String openId=data.getString("openid");
 			JSONObject jsonObject=getUserId(openId, token,request);
 			if(jsonObject!=null &&jsonObject.containsKey("msg")){
@@ -440,7 +440,7 @@ public class WeChatController extends BaseController{
 			//获取到的用户id
 			
 			//获取用户信息
-			String token=getToken(request);
+			String token=getToken(json);
 			String openId=data.getString("openid");
 			JSONObject jsonObject=getUserId(openId, token,request);
 			if(jsonObject!=null &&jsonObject.containsKey("msg")){
@@ -545,7 +545,7 @@ public class WeChatController extends BaseController{
 			//获取到的用户id
 //			String userId=(String)request.getAttribute("userId");
 			//获取用户信息
-			String token=getToken(request);
+			String token=getToken(json);
 			String openId=data.getString("openid");
 			JSONObject jsonObject=getUserId(openId, token,request);
 			if(jsonObject!=null &&jsonObject.containsKey("msg")){
@@ -786,7 +786,7 @@ public class WeChatController extends BaseController{
 			entity.setId(UUID.randomUUID().toString().replaceAll("-", ""));
 			
 			//获取用户信息
-			String token=getToken(request);
+			String token=getToken(json);
 			String openId=data.getString("openid");
 			JSONObject jsonObject=getUserId(openId, token,request);
 			if(jsonObject!=null &&jsonObject.containsKey("msg")){
