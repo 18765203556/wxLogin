@@ -157,7 +157,7 @@ public class WeChatController extends BaseController{
     public String saveDynamic(@RequestBody String json,HttpServletRequest request) {
 		try {
 			JSONObject data=JSONObject.parseObject(json);
-			
+			log.info("保存动态获取的json-----------------"+json);
 			//获取用户信息
 			String token=getToken(json);
 			String openId=data.getString("openid");
