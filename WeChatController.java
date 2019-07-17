@@ -175,6 +175,12 @@ public class WeChatController extends BaseController{
 			}
 			String userId=jsonObject.getString("userId");
 			 TNews result=weChatService.getNewsById(id, userId);
+			 //处理富文本框
+			 String serverName=request.getServerName();
+			 int port=request.getServerPort();
+			 String newsContent=result.getNewsContent();
+			 newsContent=newsContent.replaceAll("/statics",serverName+":"+port+"/statics");
+			 result.setNewsContent(newsContent);
 			 return success(result);
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -416,10 +422,22 @@ public class WeChatController extends BaseController{
 				Map<String,Object> resultMap = new HashMap<String,Object>();
 				response = weChatService.listEmploy(request);
 				dataList=(List<TEmploy>)response.getData();
+				
 				int totalCount=0;
 				if(dataList!=null){
 					totalCount=totalCount+dataList.size();
 				}
+				//获取当前服务的域名端口号
+				String serverName=req.getServerName();
+				int port=req.getServerPort();
+				//处理富文本中的图片
+				for (int i = 0; i < dataList.size(); i++) {
+					TEmploy entity=dataList.get(i);
+					String employIntroduc=entity.getEmployIntroduc();
+					employIntroduc=employIntroduc.replaceAll("/statics", serverName+":"+port+"/statics");
+					entity.setEmployIntroduc(employIntroduc);
+				}
+				
 				resultMap.put("totalCount", totalCount);
 				resultMap.put("list", dataList);
 				log.info(JSON.toJSONString(resultMap));
@@ -459,8 +477,10 @@ public class WeChatController extends BaseController{
 			//出来富文本中图片的路径
 			String companyPropaganda=resultList.getCompanyPropaganda();
 			String militaryFeelings=resultList.getMilitaryFeelings();
-			companyPropaganda.replaceAll("/statics/", request.getServerName()+"/statics/");
-			militaryFeelings.replaceAll("/statics/", request.getServerName()+"/statics/");
+			String serverName=request.getServerName();
+			int port=request.getServerPort();
+			companyPropaganda=companyPropaganda.replaceAll("/statics/",serverName+":"+port+"/statics/");
+			militaryFeelings=militaryFeelings.replaceAll("/statics/", serverName+":"+port+"/statics/");
 			resultList.setCompanyPropaganda(companyPropaganda);
 			resultList.setMilitaryFeelings(militaryFeelings);
 			if(resultList!=null){
