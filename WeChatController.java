@@ -23,6 +23,7 @@ import com.boot.security.server.dao.CusSelfInfoDao;
 import com.boot.security.server.model.CusSelfInfo;
 import com.boot.security.server.model.SysDictionaries;
 import com.boot.security.server.model.TBanner;
+import com.boot.security.server.model.TClassification;
 import com.boot.security.server.model.TComment;
 import com.boot.security.server.model.TCompany;
 import com.boot.security.server.model.TDynamic;
@@ -303,7 +304,7 @@ public class WeChatController extends BaseController{
 				return JSON.toJSONString(jsonObject);
 			}
 			
-			 String result=weChatService.listClassification();
+			List<TClassification> result=weChatService.listClassification();
 			 return success(result);
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -455,6 +456,13 @@ public class WeChatController extends BaseController{
 			}
 			
 			TCompany resultList=weChatService.companyDetail(id);
+			//出来富文本中图片的路径
+			String companyPropaganda=resultList.getCompanyPropaganda();
+			String militaryFeelings=resultList.getMilitaryFeelings();
+			companyPropaganda.replaceAll("/statics/", request.getServerName()+"/statics/");
+			militaryFeelings.replaceAll("/statics/", request.getServerName()+"/statics/");
+			resultList.setCompanyPropaganda(companyPropaganda);
+			resultList.setMilitaryFeelings(militaryFeelings);
 			if(resultList!=null){
 				return success(resultList);
 			}else{
