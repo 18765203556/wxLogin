@@ -98,7 +98,7 @@ public class TDynamicController {
     @ApiOperation(value = "根据id获取")
     public TDynamic getUserDynamicById(@PathVariable String id) {
     	//查询标题
-    	TDynamic tDynamic=tDynamicDao.getUserDynamicById(id);
+    	TDynamic tDynamic=tDynamicDao.getUserDynamicById(id,null);
         //查询评论相关
     	List<TComment> commentAll=tCommentDao.getAllCommentByDynamicId(id);
     	tDynamic.setCommentAll(commentAll);

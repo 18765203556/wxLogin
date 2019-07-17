@@ -4,6 +4,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -327,50 +329,5 @@ public class WxController extends BaseController{
 		}
 		return JSON.toJSONString(resultMap);
 	}
-	/**
-	 * 动态展示
-	 *  Description:
-	 *  @author xiaoding  DateTime 2019年7月10日 下午2:28:01
-	 *  @param request
-	 *  @param pageSize
-	 *  @param page
-	 *  @return
-	 
-	 */
-	@GetMapping("/listDynamic")
-    @ApiOperation(value = "展示所有动态列表")
-    public String listDynamic(PageTableRequest request,Integer pageSize,Integer page) {
-		List<TDynamic> dataList=null;
-		PageTableResponse response;
-		try {
-			if(pageSize!=null && page!=null){
-				Integer offset=(page-1)*pageSize;
-				Integer limit=page*pageSize;
-				request.setOffset(offset);
-				request.setLimit(limit);
-			}else{
-				return fail("分页参数不正确，请核实参数");
-			}
-			Map<String,Object> resultMap = new HashMap<String,Object>();
-			response = weChatService.listDynamic(request);
-			String news=weChatService.listNewsByOne();
-			dataList=(List<TDynamic>)response.getData();
-			int totalCount=0;
-			if(news!=null){
-				totalCount=1;
-			}
-			if(dataList!=null){
-				totalCount=totalCount+dataList.size();
-			}
-			resultMap.put("news", news);
-			resultMap.put("totalCount", totalCount);
-			resultMap.put("dynamic", dataList);
-			log.info(JSON.toJSONString(resultMap));
-			return success(resultMap);
-		} catch (Exception e) {
-			e.printStackTrace();
-			log.info(JSON.toJSONString(e));
-			 return fail("系统异常请联系管理员！");
-		}
-    }
+
 }
