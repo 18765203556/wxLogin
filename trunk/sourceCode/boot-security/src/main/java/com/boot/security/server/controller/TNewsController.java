@@ -98,7 +98,7 @@ public class TNewsController {
     @ApiOperation(value = "根据id获取")
     public TNews getNewsById(@PathVariable String id) {
     	//查询标题
-    	TNews tNews=tNewsDao.getNewsById(id);
+    	TNews tNews=tNewsDao.getNewsById(id,null);
     	if(tNews!=null){
     		 //查询评论相关
         	List<TComment> commentAll=tCommentDao.getAllCommentByDynamicId(id);

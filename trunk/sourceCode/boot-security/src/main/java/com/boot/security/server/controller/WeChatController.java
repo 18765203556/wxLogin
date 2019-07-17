@@ -30,6 +30,7 @@ import com.boot.security.server.model.TEmploy;
 import com.boot.security.server.model.TEmployCollect;
 import com.boot.security.server.model.TEmployComment;
 import com.boot.security.server.model.TEmployDeliver;
+import com.boot.security.server.model.TNews;
 import com.boot.security.server.page.table.PageTableRequest;
 import com.boot.security.server.page.table.PageTableResponse;
 import com.boot.security.server.service.CusService;
@@ -74,7 +75,7 @@ public class WeChatController extends BaseController{
 	 *  @return
 	 
 	 */
-	@PostMapping("/listDynamic")
+	/*@PostMapping("/listDynamic")
     @ApiOperation(value = "展示所有动态列表")
     public String listDynamic(PageTableRequest request,Integer pageSize,Integer page) {
 		List<TDynamic> dataList=null;
@@ -90,7 +91,7 @@ public class WeChatController extends BaseController{
 			}
 			Map<String,Object> resultMap = new HashMap<String,Object>();
 			response = weChatService.listDynamic(request);
-			String news=weChatService.listNewsByOne();
+			String news=weChatService.listNewsByOne(request);
 			dataList=(List<TDynamic>)response.getData();
 			int totalCount=0;
 			if(news!=null){
@@ -109,7 +110,7 @@ public class WeChatController extends BaseController{
 			log.info(JSON.toJSONString(e));
 			 return fail("系统异常请联系管理员！");
 		}
-    }
+    }*/
 	/**
 	 * 	动态详情
 	 *  Description:
@@ -121,18 +122,22 @@ public class WeChatController extends BaseController{
 	 */
 	
 	@GetMapping("/dynamicDetail")
-    @ApiOperation(value = "展示所有动态列表")
+    @ApiOperation(value = "动态详情")
     public String dynamicDetail(String id,String openid,String token,HttpServletRequest request) {
 		TDynamic data;
 		try {
+			
+			if(token==null||token==""||openid==null||openid==""){
+				return login("需要登录");
+			}
 			
 			//获取用户信息
 			JSONObject jsonObject=getUserId(openid, token,request);
 			if(jsonObject!=null &&jsonObject.containsKey("msg")){
 				return JSON.toJSONString(jsonObject);
 			}
-			
-			data = weChatService.dynamicDetail(id);
+			String userId=jsonObject.getString("userId");
+			data = weChatService.dynamicDetail(id,userId);
 			log.info(JSON.toJSONString(data));
 			 return success(data);
 		} catch (Exception e) {
@@ -142,6 +147,39 @@ public class WeChatController extends BaseController{
 		}
        
     }
+	/**
+	 * 	新闻详情
+	 *  Description:
+	 *  @author xiaoding  DateTime 2019年7月17日 上午10:43:09
+	 *  @param id
+	 *  @param openid
+	 *  @param token
+	 *  @param request
+	 *  @return
+	 
+	 */
+	@GetMapping("/getNewsById")
+    @ApiOperation(value = "评论保存方法")
+	public String getNewsById(String id,String openid,String token,HttpServletRequest request){
+		try {
+			
+			if(token==null||token==""||openid==null||openid==""){
+				return login("需要登录");
+			}
+			
+			//获取用户信息
+			JSONObject jsonObject=getUserId(openid, token,request);
+			if(jsonObject!=null &&jsonObject.containsKey("msg")){
+				return JSON.toJSONString(jsonObject);
+			}
+			String userId=jsonObject.getString("userId");
+			 TNews result=weChatService.getNewsById(id, userId);
+			 return success(JSON.toJSONString(result));
+		} catch (Exception e) {
+			e.printStackTrace();
+			 return fail("系统异常请联系管理员！");
+		}
+	}
 	/**
 	 * 	动态保存
 	 *  Description:
@@ -161,6 +199,9 @@ public class WeChatController extends BaseController{
 			//获取用户信息
 			String token=getToken(json);
 			String openId=data.getString("openid");
+			if(token==null||token==""||openId==null||openId==""){
+				return login("需要登录");
+			}
 			JSONObject jsonObject=getUserId(openId, token,request);
 			if(jsonObject!=null &&jsonObject.containsKey("msg")){
 				return JSON.toJSONString(jsonObject);
@@ -203,6 +244,9 @@ public class WeChatController extends BaseController{
 			//获取用户信息
 			String token=getToken(json);
 			String openId=data.getString("openid");
+			if(token==null||token==""||openId==null||openId==""){
+				return login("需要登录");
+			}
 			JSONObject jsonObject=getUserId(openId, token,request);
 			if(jsonObject!=null &&jsonObject.containsKey("msg")){
 				return JSON.toJSONString(jsonObject);
@@ -228,14 +272,17 @@ public class WeChatController extends BaseController{
 			entity.setCreateTime(new Date());
 			//状态字段
 			entity.setStatus(data.getString("status"));
-			 weChatService.saveComment(entity);
-			 return success("保存成功!");
+			String result= weChatService.saveComment(entity);
+			 return success(result);
 		} catch (Exception e) {
 			e.printStackTrace();
 			 return fail("系统异常请联系管理员！");
 		}
        
     }
+	
+	
+	
 	/**
 	 * 	招聘类型分类接口
 	 *  Description:
@@ -411,7 +458,7 @@ public class WeChatController extends BaseController{
 			if(resultList!=null){
 				return success(JSON.toJSONString(resultList));
 			}else{
-				return fail("公司详情查询失败！请联系管理员！");
+				return success("查询不到公司信息");
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -442,6 +489,9 @@ public class WeChatController extends BaseController{
 			//获取用户信息
 			String token=getToken(json);
 			String openId=data.getString("openid");
+			if(token==null||token==""||openId==null||openId==""){
+				return login("需要登录");
+			}
 			JSONObject jsonObject=getUserId(openId, token,request);
 			if(jsonObject!=null &&jsonObject.containsKey("msg")){
 				return JSON.toJSONString(jsonObject);
@@ -483,7 +533,9 @@ public class WeChatController extends BaseController{
 		PageTableResponse response;
 		try {
 //			String userId=(String)req.getAttribute("userId");
-			
+			if(token==null||token==""||openid==null||openid==""){
+				return login("需要登录");
+			}
 			//获取用户信息
 			JSONObject jsonObject=getUserId(openid, token,req);
 			if(jsonObject!=null &&jsonObject.containsKey("msg")){
@@ -547,6 +599,9 @@ public class WeChatController extends BaseController{
 			//获取用户信息
 			String token=getToken(json);
 			String openId=data.getString("openid");
+			if(token==null||token==""||openId==null||openId==""){
+				return login("需要登录");
+			}
 			JSONObject jsonObject=getUserId(openId, token,request);
 			if(jsonObject!=null &&jsonObject.containsKey("msg")){
 				return JSON.toJSONString(jsonObject);
@@ -586,7 +641,9 @@ public class WeChatController extends BaseController{
 		PageTableResponse response;
 		try {
 //			String userId=(String)req.getAttribute("userId");
-			
+			if(token==null||token==""||openid==null||openid==""){
+				return login("需要登录");
+			}
 			//获取用户信息
 			JSONObject jsonObject=getUserId(openid, token,req);
 			if(jsonObject!=null &&jsonObject.containsKey("msg")){
@@ -641,7 +698,9 @@ public class WeChatController extends BaseController{
     public String cancelCollect(String id,HttpServletRequest request,String openid,String token) {
 		try {
 //			String userId=(String)request.getAttribute("userId");
-			
+			if(token==null||token==""||openid==null||openid==""){
+				return login("需要登录");
+			}
 			//获取用户信息
 			JSONObject jsonObject=getUserId(openid, token,request);
 			if(jsonObject!=null &&jsonObject.containsKey("msg")){
@@ -672,7 +731,9 @@ public class WeChatController extends BaseController{
 		List<TEmploy> dataList=null;
 		PageTableResponse response;
 		try {
-			
+			if(token==null||token==""||openid==null||openid==""){
+				return login("需要登录");
+			}
 			//获取用户信息
 			JSONObject jsonObject=getUserId(openid, token,req);
 			if(jsonObject!=null &&jsonObject.containsKey("msg")){
@@ -729,7 +790,9 @@ public class WeChatController extends BaseController{
 		PageTableResponse response;
 		try {
 //			String userId=(String)req.getAttribute("userId");
-			
+			if(token==null||token==""||openid==null||openid==""){
+				return login("需要登录");
+			}
 			//获取用户信息
 			JSONObject jsonObject=getUserId(openid, token,req);
 			if(jsonObject!=null &&jsonObject.containsKey("msg")){
@@ -788,6 +851,10 @@ public class WeChatController extends BaseController{
 			//获取用户信息
 			String token=getToken(json);
 			String openId=data.getString("openid");
+			if(token==null||token==""||openId==null||openId==""){
+				return login("需要登录");
+			}
+			
 			JSONObject jsonObject=getUserId(openId, token,request);
 			if(jsonObject!=null &&jsonObject.containsKey("msg")){
 				return JSON.toJSONString(jsonObject);
@@ -834,7 +901,9 @@ public class WeChatController extends BaseController{
 			Map<String, Object> params=request.getParams();
 			//猜你喜欢保存在用户信息里面的喜欢的职位类型多选，已分号分隔
 //			String employTypes=(String)req.getAttribute("employTypes");
-			
+			if(token==null||token==""||openid==null||openid==""){
+				return login("需要登录");
+			}
 			//获取用户信息
 			JSONObject jsonObject=getUserId(openid, token,req);
 			if(jsonObject!=null &&jsonObject.containsKey("msg")){
@@ -903,7 +972,9 @@ public class WeChatController extends BaseController{
 		PageTableResponse response;
 		try {
 			
-
+			if(token==null||token==""||openid==null||openid==""){
+				return login("需要登录");
+			}
 			//获取用户信息
 			JSONObject jsonObject=getUserId(openid, token,req);
 			if(jsonObject!=null &&jsonObject.containsKey("msg")){
@@ -955,6 +1026,10 @@ public class WeChatController extends BaseController{
 		List<TBanner> dataList=null;
 		PageTableResponse response;
 		try {
+			
+			if(token==null||token==""||openid==null||openid==""){
+				return login("需要登录");
+			}
 			
 			//获取用户信息
 			JSONObject jsonObject=getUserId(openid, token,req);
@@ -1026,4 +1101,66 @@ public class WeChatController extends BaseController{
 		}
 		return jsonObject;
 	}
+	/**
+	 * 动态展示
+	 *  Description:
+	 *  @author xiaoding  DateTime 2019年7月10日 下午2:28:01
+	 *  @param request
+	 *  @param pageSize
+	 *  @param page
+	 *  @return
+	 
+	 */
+	@GetMapping("/listDynamic")
+    @ApiOperation(value = "展示所有动态列表")
+    public String listDynamic(PageTableRequest request,Integer pageSize,Integer page,String openid,String token,HttpServletRequest req) {
+		List<TDynamic> dataList=null;
+		PageTableResponse response;
+		try {
+			
+			if(token==null||token==""||openid==null||openid==""){
+				return login("需要登录");
+			}
+			
+			//获取用户信息
+			JSONObject jsonObject=getUserId(openid, token,req);
+			if(jsonObject!=null &&jsonObject.containsKey("msg")){
+				return JSON.toJSONString(jsonObject);
+			}
+			
+			if(pageSize!=null && page!=null){
+				Integer offset=(page-1)*pageSize;
+				Integer limit=page*pageSize;
+				request.setOffset(offset);
+				request.setLimit(limit);
+				//获取用户信息
+//				jsonObject=getUserId(openid, token,req);
+//				if(jsonObject.containsKey("userId")){
+//					request.getParams().put("userId", jsonObject.get("userId"));
+//				}
+			}else{
+				return fail("分页参数不正确，请核实参数");
+			}
+			Map<String,Object> resultMap = new HashMap<String,Object>();
+			response = weChatService.listDynamic(request);
+			String news=weChatService.listNewsByOne(request);
+			dataList=(List<TDynamic>)response.getData();
+			int totalCount=0;
+			if(news!=null){
+				totalCount=1;
+			}
+			if(dataList!=null){
+				totalCount=totalCount+dataList.size();
+			}
+			resultMap.put("news", news);
+			resultMap.put("totalCount", totalCount);
+			resultMap.put("dynamic", dataList);
+			log.info(JSON.toJSONString(resultMap));
+			return success(resultMap);
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.info(JSON.toJSONString(e));
+			 return fail("系统异常请联系管理员！");
+		}
+    }
 }
