@@ -93,7 +93,7 @@ public class WxController extends BaseController{
 		// 微信服务鉴权
 		String auth = wxService.commenAuth(paramMap);
 		JSONObject jsonObject = JSON.parseObject(auth);
-		if("1".equals((String)jsonObject.get("code"))) {
+		if(!"0".equals((String)jsonObject.get("code"))) {
 			return auth;
 		}
 		log.info("前台请求报文>>>>>>>>>>>"+JSON.toJSONString(paramMap));
@@ -204,7 +204,7 @@ public class WxController extends BaseController{
 		// 微信服务鉴权
 		String auth = wxService.commenAuth(paramMap);
 		JSONObject jsonObject = JSON.parseObject(auth);
-		if("1".equals((String)jsonObject.get("code"))) {
+		if(!"0".equals((String)jsonObject.get("code"))) {
 			return auth;
 		}
 		int delete = tCertificateDao.delete(jo.getString("id"));
@@ -250,7 +250,7 @@ public class WxController extends BaseController{
 		// 微信服务鉴权
 		String auth = wxService.commenAuth(paramMap);
 		JSONObject jsonObject = JSON.parseObject(auth);
-		if("1".equals((String)jsonObject.get("code"))) {
+		if(!"0".equals((String)jsonObject.get("code"))) {
 			return auth;
 		}
 		CusSelfInfo byOpenId = cusSelfInfoDao.getByOpenId(jo.getString("openid"));
@@ -286,7 +286,7 @@ public class WxController extends BaseController{
 		// 微信服务鉴权
 		String auth = wxService.commenAuth(paramMap);
 		JSONObject jsonObject = JSON.parseObject(auth);
-		if("1".equals((String)jsonObject.get("code"))) {
+		if(!"0".equals((String)jsonObject.get("code"))) {
 			return auth;
 		}
 		int delete = tServiceHisDao.delete(jo.getString("id"));
@@ -328,7 +328,7 @@ public class WxController extends BaseController{
 		// 微信服务鉴权
 		String auth = wxService.commenAuth(paramMap);
 		JSONObject jsonObject = JSON.parseObject(auth);
-		if("1".equals((String)jsonObject.get("code"))) {
+		if(!"0".equals((String)jsonObject.get("code"))) {
 			return auth;
 		}
 		int delete = tWorkHisDao.delete(jo.getString("id"));
