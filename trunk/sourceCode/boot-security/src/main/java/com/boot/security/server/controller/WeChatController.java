@@ -1043,14 +1043,14 @@ public class WeChatController extends BaseController{
 			if(bannerType==null||bannerType==""){
 				return fail("轮播类型字段未传递请校验参数！");
 			}
-			//如果没有分页参数表示查询所有
-			if(pageSize!=null && page!=null){
-				Integer offset=(page-1)*pageSize;
-				Integer limit=page*pageSize;
-				request.setOffset(offset);
-				request.setLimit(limit);
-			}else{
-			}
+//			//如果没有分页参数表示查询所有
+//			if(pageSize!=null && page!=null){
+//				Integer offset=(page-1)*pageSize;
+//				Integer limit=page*pageSize;
+//				request.setOffset(offset);
+//				request.setLimit(limit);
+//			}else{
+//			}
 			Map<String,Object> resultMap = new HashMap<String,Object>();
 			response = weChatService.listBanner(request);
 			dataList=(List<TBanner>)response.getData();
