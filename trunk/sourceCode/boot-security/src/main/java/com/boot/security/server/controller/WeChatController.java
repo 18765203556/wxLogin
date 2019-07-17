@@ -174,7 +174,7 @@ public class WeChatController extends BaseController{
 			}
 			String userId=jsonObject.getString("userId");
 			 TNews result=weChatService.getNewsById(id, userId);
-			 return success(JSON.toJSONString(result));
+			 return success(result);
 		} catch (Exception e) {
 			e.printStackTrace();
 			 return fail("系统异常请联系管理员！");
@@ -273,7 +273,7 @@ public class WeChatController extends BaseController{
 			//状态字段
 			entity.setStatus(data.getString("status"));
 			String result= weChatService.saveComment(entity);
-			 return success(result);
+			 return success(entity);
 		} catch (Exception e) {
 			e.printStackTrace();
 			 return fail("系统异常请联系管理员！");
@@ -335,7 +335,7 @@ public class WeChatController extends BaseController{
 			
 			List<SysDictionaries> resultList=weChatService.listCity(Const.CHILDCITY);
 			if(resultList!=null){
-				return success(JSON.toJSONString(resultList));
+				return success(resultList);
 			}else{
 				return fail("城市加载失败！请联系管理员！");
 			}
@@ -366,7 +366,7 @@ public class WeChatController extends BaseController{
 			}
 			List<SysDictionaries> resultList=weChatService.listCompanyType(Const.COMPANYTYPE);
 			if(resultList!=null){
-				return success(JSON.toJSONString(resultList));
+				return success(resultList);
 			}else{
 				return fail("城市加载失败！请联系管理员！");
 			}
@@ -456,7 +456,7 @@ public class WeChatController extends BaseController{
 			
 			TCompany resultList=weChatService.companyDetail(id);
 			if(resultList!=null){
-				return success(JSON.toJSONString(resultList));
+				return success(resultList);
 			}else{
 				return success("查询不到公司信息");
 			}
