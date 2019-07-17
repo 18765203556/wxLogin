@@ -1,15 +1,12 @@
 package com.boot.security.server.controller;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
-import javax.servlet.http.HttpServletRequest;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -26,16 +23,14 @@ import com.boot.security.server.dao.TCertificateDao;
 import com.boot.security.server.dao.TServiceHisDao;
 import com.boot.security.server.dao.TWorkHisDao;
 import com.boot.security.server.model.CusSelfInfo;
-import com.boot.security.server.model.TDynamic;
-import com.boot.security.server.page.table.PageTableRequest;
-import com.boot.security.server.page.table.PageTableResponse;
 import com.boot.security.server.service.CusService;
 import com.boot.security.server.service.ResumeService;
-import com.boot.security.server.service.WeChatService;
 import com.boot.security.server.service.WxService;
 import com.boot.security.server.utils.BaseController;
 
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 
 /**
@@ -72,8 +67,6 @@ public class WxController extends BaseController{
 	
 	@Autowired
 	private TWorkHisDao tWorkHisDao;
-	@Autowired
-	private WeChatService weChatService;
 	
 
 	@LogAnnotation
@@ -86,8 +79,33 @@ public class WxController extends BaseController{
 	}
 	
 	@LogAnnotation
+	@PostMapping("/createQRCode")
+	@ApiOperation(value = "生成二维码")
+	public String createQRCode(@RequestBody String json) {
+		HashMap<String,Object> paramMap = new HashMap<String,Object>();
+		JSONObject jo=JSONObject.parseObject(json);
+		String path = jo.getString("path");
+		String width = jo.getString("width");
+		paramMap.put("openId", jo.getString("openid"));
+		paramMap.put("token", jo.getString("token"));
+		paramMap.put("path", path);
+		paramMap.put("width", width);
+		// 微信服务鉴权
+		String auth = wxService.commenAuth(paramMap);
+		JSONObject jsonObject = JSON.parseObject(auth);
+		if("1".equals((String)jsonObject.get("code"))) {
+			return auth;
+		}
+		log.info("前台请求报文>>>>>>>>>>>"+JSON.toJSONString(paramMap));
+		return wxService.createQRCode(path,width);
+	}
+	
+	@LogAnnotation
 	@PostMapping("/login")
 	@ApiOperation(value = "微信用户登录",notes="前端通过临时登录凭证code获取session_key和openid等")
+	@ApiImplicitParams({
+		@ApiImplicitParam(name="json",value="临时登录凭证code",required=true,dataType="String",paramType="body")
+	})
 	public String login(@RequestBody String json) {
 		HashMap<String,Object> paramMap = new HashMap<String,Object>();
 		JSONObject jo=JSONObject.parseObject(json);
