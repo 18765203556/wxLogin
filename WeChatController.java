@@ -176,10 +176,10 @@ public class WeChatController extends BaseController{
 			String userId=jsonObject.getString("userId");
 			 TNews result=weChatService.getNewsById(id, userId);
 			 //处理富文本框
-			 String serverName=request.getServerName();
-			 int port=request.getServerPort();
+//			 String serverName=request.getServerName();
+//			 int port=request.getServerPort();
 			 String newsContent=result.getNewsContent();
-			 newsContent=newsContent.replaceAll("/statics",serverName+":"+port+"/statics");
+			 newsContent=newsContent.replaceAll("/statics",getUrl(request)+"/statics");
 			 result.setNewsContent(newsContent);
 			 return success(result);
 		} catch (Exception e) {
@@ -428,13 +428,13 @@ public class WeChatController extends BaseController{
 					totalCount=totalCount+dataList.size();
 				}
 				//获取当前服务的域名端口号
-				String serverName=req.getServerName();
-				int port=req.getServerPort();
+//				String serverName=req.getServerName();
+//				int port=req.getServerPort();
 				//处理富文本中的图片
 				for (int i = 0; i < dataList.size(); i++) {
 					TEmploy entity=dataList.get(i);
 					String employIntroduc=entity.getEmployIntroduc();
-					employIntroduc=employIntroduc.replaceAll("/statics", serverName+":"+port+"/statics");
+					employIntroduc=employIntroduc.replaceAll("/statics", getUrl(req)+"/statics");
 					entity.setEmployIntroduc(employIntroduc);
 				}
 				
@@ -477,10 +477,10 @@ public class WeChatController extends BaseController{
 			//出来富文本中图片的路径
 			String companyPropaganda=resultList.getCompanyPropaganda();
 			String militaryFeelings=resultList.getMilitaryFeelings();
-			String serverName=request.getServerName();
-			int port=request.getServerPort();
-			companyPropaganda=companyPropaganda.replaceAll("/statics/",serverName+":"+port+"/statics/");
-			militaryFeelings=militaryFeelings.replaceAll("/statics/", serverName+":"+port+"/statics/");
+//			String serverName=request.getServerName();
+//			int port=request.getServerPort();
+			companyPropaganda=companyPropaganda.replaceAll("/statics/",getUrl(request)+"/statics/");
+			militaryFeelings=militaryFeelings.replaceAll("/statics/", getUrl(request)+"/statics/");
 			resultList.setCompanyPropaganda(companyPropaganda);
 			resultList.setMilitaryFeelings(militaryFeelings);
 			if(resultList!=null){
@@ -1191,4 +1191,22 @@ public class WeChatController extends BaseController{
 			 return fail("系统异常请联系管理员！");
 		}
     }
+	@GetMapping("/test1")
+    @ApiOperation(value = "展示所有动态列表")
+	//测试页面-跳转到输入数据的form表单
+	public String test1(HttpServletRequest request){
+	
+		String url = request.getScheme()+"://"+ request.getServerName()+request.getRequestURI()+"?"+request.getQueryString();
+		log.info("获取全路径（协议类型：//域名/项目名/命名空间/action名称?其他参数）url="+url);
+		String url2=request.getScheme()+"://"+ request.getServerName();//+request.getRequestURI();
+		log.info("协议名：//域名="+url2);
+	
+	
+		log.info("获取项目名="+request.getContextPath());
+		log.info("获取参数="+request.getQueryString());
+		log.info("获取全路径="+request.getRequestURL());
+
+
+	return "success";
+	}
 }
