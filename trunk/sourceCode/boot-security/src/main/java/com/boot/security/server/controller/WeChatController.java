@@ -413,6 +413,14 @@ public class WeChatController extends BaseController{
 			if(params!=null){
 				params.put("userId", userId);
 			}
+			//根据城市名称去字典表中查询城市id
+			String cityName=(String)params.get("cityName");
+			String cityId=weChatService.getCityIdByCityName(cityName);
+			if(cityId!=null){
+				params.put("companyCity",cityId);
+			}else{
+				return fail("根据城市名称查询城市id失败！请联系管理员 ");
+			}
 			if(pageSize!=null && page!=null){
 				Integer offset=(page-1)*pageSize;
 				Integer limit=page*pageSize;
