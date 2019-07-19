@@ -161,7 +161,7 @@ public class WeChatController extends BaseController{
 	 
 	 */
 	@GetMapping("/getNewsById")
-    @ApiOperation(value = "评论保存方法")
+    @ApiOperation(value = "	新闻详情")
 	public String getNewsById(String id,String openid,String token,HttpServletRequest request){
 		try {
 			
