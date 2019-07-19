@@ -86,10 +86,12 @@ public class WxController extends BaseController{
 		JSONObject jo=JSONObject.parseObject(json);
 		String path = jo.getString("path");
 		String width = jo.getString("width");
+		String scene = jo.getString("scene");
 		paramMap.put("openId", jo.getString("openid"));
 		paramMap.put("token", jo.getString("token"));
 		paramMap.put("path", path);
 		paramMap.put("width", width);
+		paramMap.put("scene", scene);
 		// 微信服务鉴权
 		String auth = wxService.commenAuth(paramMap);
 		JSONObject jsonObject = JSON.parseObject(auth);
@@ -97,7 +99,7 @@ public class WxController extends BaseController{
 			return auth;
 		}
 		log.info("前台请求报文>>>>>>>>>>>"+JSON.toJSONString(paramMap));
-		return wxService.createQRCode(path,width);
+		return wxService.createQRCode(path,width,scene);
 	}
 	
 	@LogAnnotation
