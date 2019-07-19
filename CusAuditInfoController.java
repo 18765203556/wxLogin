@@ -114,11 +114,11 @@ public class CusAuditInfoController {
             public List<CusAuditInfo> list(PageTableRequest request) {
             	List<CusAuditInfo> list = cusAuditInfoDao.list(request.getParams(), request.getOffset(), request.getLimit());
                 // 拼接图片访问地址
-            	String filePath = "statics" ;
+            	String filePath = "/statics" ;
         		for(CusAuditInfo cusAuditInfo:list) {
         			if(StrUtil.isNotEmpty(cusAuditInfo.getCertifiedImg())) {
         				log.info(filePath+cusAuditInfo.getCertifiedImg());
-        				//cusAuditInfo.setCertifiedImg(filePath+cusAuditInfo.getCertifiedImg());
+        				cusAuditInfo.setCertifiedImg(filePath+cusAuditInfo.getCertifiedImg());
         				Dict dict = dictDao.getByTypeAndK("auditStatus", cusAuditInfo.getAuditStatus());
         				if(StrUtil.isNotEmpty(dict)) {
         					cusAuditInfo.setAuditStatus(dict.getVal());
