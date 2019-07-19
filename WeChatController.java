@@ -32,6 +32,7 @@ import com.boot.security.server.model.TEmployCollect;
 import com.boot.security.server.model.TEmployComment;
 import com.boot.security.server.model.TEmployDeliver;
 import com.boot.security.server.model.TNews;
+import com.boot.security.server.model.TTrainingClassification;
 import com.boot.security.server.page.table.PageTableRequest;
 import com.boot.security.server.page.table.PageTableResponse;
 import com.boot.security.server.service.CusService;
@@ -1181,7 +1182,7 @@ public class WeChatController extends BaseController{
 			}
 			Map<String,Object> resultMap = new HashMap<String,Object>();
 			response = weChatService.listDynamic(request);
-			String news=weChatService.listNewsByOne(request);
+			TNews news=weChatService.listNewsByOne(request);
 			dataList=(List<TDynamic>)response.getData();
 			int totalCount=0;
 			if(news!=null){
@@ -1218,5 +1219,31 @@ public class WeChatController extends BaseController{
 
 
 	return "success";
+	}
+	/**
+	 * 查询所有培训分类
+	 *  Description:
+	 *  @author xiaoding  DateTime 2019年7月19日 下午3:05:22
+	 *  @return
+	 
+	 */
+	@GetMapping("/listAllTrainClass")
+    @ApiOperation(value = "展示所有课程分类")
+	public String listAllTrainingClassification(PageTableRequest params,String openid,String token,HttpServletRequest req){
+		List<TTrainingClassification> dataList=null;
+		try {
+			//获取用户信息
+			JSONObject jsonObject=getUserId(openid, token,req);
+			if(jsonObject!=null &&jsonObject.containsKey("msg")){
+				return JSON.toJSONString(jsonObject);
+			}
+			dataList=weChatService.listAllTrainingClassification(params.getParams());
+			log.info(JSON.toJSONString(dataList));
+			return success(dataList);
+		} catch (Exception e) {
+			e.printStackTrace();
+			return fail("查询失败请联系管理员");
+		}
+		
 	}
 }

@@ -14,10 +14,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.boot.security.server.dao.TCommentDao;
-import com.boot.security.server.dao.TNewsDao;
-import com.boot.security.server.model.TComment;
-import com.boot.security.server.model.TNews;
+import com.boot.security.server.dao.TTrainingClassificationDao;
+import com.boot.security.server.model.TTrainingClassification;
 import com.boot.security.server.page.table.PageTableHandler;
 import com.boot.security.server.page.table.PageTableHandler.CountHandler;
 import com.boot.security.server.page.table.PageTableHandler.ListHandler;
@@ -27,39 +25,36 @@ import com.boot.security.server.page.table.PageTableResponse;
 import io.swagger.annotations.ApiOperation;
 
 @RestController
-@RequestMapping("/tNewss")
-public class TNewsController {
+@RequestMapping("/tTrainingClassifications")
+public class TTrainingClassificationController {
 
     @Autowired
-    private TNewsDao tNewsDao;
-    @Autowired
-    private TCommentDao tCommentDao;
+    private TTrainingClassificationDao tTrainingClassificationDao;
 
     @PostMapping
     @ApiOperation(value = "保存")
-    public TNews save(@RequestBody TNews tNews) {
-    	 String id= UUID.randomUUID().toString().replaceAll("-", "");
-    	 tNews.setId(id);
-    	 tNews.setDynamicType("news");
-    	 tNews.setCreateTime(new Date());
-        tNewsDao.save(tNews);
-
-        return tNews;
+    public TTrainingClassification save(@RequestBody TTrainingClassification tTrainingClassification) {
+    	String id= UUID.randomUUID().toString().replaceAll("-", "");
+    	tTrainingClassification.setId(id);
+    	tTrainingClassification.setCreateTime(new Date());
+    	
+        tTrainingClassificationDao.save(tTrainingClassification);
+        return tTrainingClassification;
     }
 
     @GetMapping("/{id}")
     @ApiOperation(value = "根据id获取")
-    public TNews get(@PathVariable String id) {
-        return tNewsDao.getById(id);
+    public TTrainingClassification get(@PathVariable String id) {
+        return tTrainingClassificationDao.getById(id);
     }
 
     @PutMapping
     @ApiOperation(value = "修改")
-    public TNews update(@RequestBody TNews tNews) {
-    	tNews.setUpdateTime(new Date());
-        tNewsDao.update(tNews);
+    public TTrainingClassification update(@RequestBody TTrainingClassification tTrainingClassification) {
+    	tTrainingClassification.setLastModTime(new Date());
+        tTrainingClassificationDao.update(tTrainingClassification);
 
-        return tNews;
+        return tTrainingClassification;
     }
 
     @GetMapping
@@ -69,13 +64,13 @@ public class TNewsController {
 
             @Override
             public int count(PageTableRequest request) {
-                return tNewsDao.count(request.getParams());
+                return tTrainingClassificationDao.count(request.getParams());
             }
         }, new ListHandler() {
 
             @Override
-            public List<TNews> list(PageTableRequest request) {
-                return tNewsDao.list(request.getParams(), request.getOffset(), request.getLimit());
+            public List<TTrainingClassification> list(PageTableRequest request) {
+                return tTrainingClassificationDao.list(request.getParams(), request.getOffset(), request.getLimit());
             }
         }).handle(request);
     }
@@ -83,27 +78,6 @@ public class TNewsController {
     @DeleteMapping("/{id}")
     @ApiOperation(value = "删除")
     public void delete(@PathVariable String id) {
-        tNewsDao.delete(id);
-        tCommentDao.deleteAllByDynamicId(id);
-    }
-    /**
-     * 根据动态id获取动态信息
-     *  Description:
-     *  @author xiaoding  DateTime 2019年7月9日 上午11:00:35
-     *  @param id
-     *  @return
-     
-     */
-    @GetMapping("/getNewsById/{id}")
-    @ApiOperation(value = "根据id获取")
-    public TNews getNewsById(@PathVariable String id) {
-    	//查询标题
-    	TNews tNews=tNewsDao.getNewsById(id,null);
-    	if(tNews!=null){
-    		 //查询评论相关
-        	List<TComment> commentAll=tCommentDao.getAllCommentByDynamicId(id);
-        	tNews.setCommentAll(commentAll);
-    	}else new TNews();
-    	return tNews;
+        tTrainingClassificationDao.delete(id);
     }
 }
