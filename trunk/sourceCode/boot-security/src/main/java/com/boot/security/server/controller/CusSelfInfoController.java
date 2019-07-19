@@ -71,7 +71,7 @@ public class CusSelfInfoController {
 
     @DeleteMapping("/{id}")
     @ApiOperation(value = "删除")
-    public void delete(@PathVariable Long id) {
+    public void delete(@PathVariable String id) {
         cusSelfInfoDao.delete(id);
     }
 }
