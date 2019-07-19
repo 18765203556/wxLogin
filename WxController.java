@@ -112,6 +112,8 @@ public class WxController extends BaseController{
 		HashMap<String,Object> paramMap = new HashMap<String,Object>();
 		JSONObject jo=JSONObject.parseObject(json);
 		paramMap.put("code", jo.getString("code"));
+		paramMap.put("encryptedData", jo.getString("encryptedData"));
+		paramMap.put("iv", jo.getString("iv"));
 		log.info("前台请求报文>>>>>>>>>>>"+JSON.toJSONString(paramMap));
 		return wxService.wxLogin(paramMap);
 	}
