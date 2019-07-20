@@ -80,4 +80,16 @@ public class TTrainingClassificationController {
     public void delete(@PathVariable String id) {
         tTrainingClassificationDao.delete(id);
     }
+    /**
+     * 查询所有课程分类
+     *  Description:
+     *  @author xiaoding  DateTime 2019年7月20日 上午10:04:31
+     *  @return
+     
+     */
+    @GetMapping("/getAll")
+    public List<TTrainingClassification> getAll(PageTableRequest request){
+    	return tTrainingClassificationDao.getAll();
+    	
+    }
 }
