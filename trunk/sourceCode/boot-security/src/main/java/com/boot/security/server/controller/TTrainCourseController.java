@@ -19,40 +19,42 @@ import com.boot.security.server.page.table.PageTableHandler;
 import com.boot.security.server.page.table.PageTableResponse;
 import com.boot.security.server.page.table.PageTableHandler.CountHandler;
 import com.boot.security.server.page.table.PageTableHandler.ListHandler;
-import com.boot.security.server.dao.TOrganDao;
-import com.boot.security.server.model.TOrgan;
+import com.boot.security.server.dao.TTrainCourseDao;
+import com.boot.security.server.model.TTrainCourse;
 
 import io.swagger.annotations.ApiOperation;
 
 @RestController
-@RequestMapping("/tOrgans")
-public class TOrganController {
+@RequestMapping("/tTrainCourses")
+public class TTrainCourseController {
 
     @Autowired
-    private TOrganDao tOrganDao;
+    private TTrainCourseDao tTrainCourseDao;
 
     @PostMapping
     @ApiOperation(value = "保存")
-    public TOrgan save(@RequestBody TOrgan tOrgan) {
+    public TTrainCourse save(@RequestBody TTrainCourse tTrainCourse) {
     	String id= UUID.randomUUID().toString().replaceAll("-", "");
-    	tOrgan.setId(id);
-    	tOrgan.setCreateTime(new Date());
-        tOrganDao.save(tOrgan);
-        return tOrgan;
+    	tTrainCourse.setId(id);
+    	tTrainCourse.setCreateTime(new Date());
+        tTrainCourseDao.save(tTrainCourse);
+
+        return tTrainCourse;
     }
 
     @GetMapping("/{id}")
     @ApiOperation(value = "根据id获取")
-    public TOrgan get(@PathVariable String id) {
-        return tOrganDao.getById(id);
+    public TTrainCourse get(@PathVariable String id) {
+        return tTrainCourseDao.getById(id);
     }
 
     @PutMapping
     @ApiOperation(value = "修改")
-    public TOrgan update(@RequestBody TOrgan tOrgan) {
-    	tOrgan.setLastModTime(new Date());
-        tOrganDao.update(tOrgan);
-        return tOrgan;
+    public TTrainCourse update(@RequestBody TTrainCourse tTrainCourse) {
+    	tTrainCourse.setLastModTime(new Date());
+        tTrainCourseDao.update(tTrainCourse);
+
+        return tTrainCourse;
     }
 
     @GetMapping
@@ -62,13 +64,13 @@ public class TOrganController {
 
             @Override
             public int count(PageTableRequest request) {
-                return tOrganDao.count(request.getParams());
+                return tTrainCourseDao.count(request.getParams());
             }
         }, new ListHandler() {
 
             @Override
-            public List<TOrgan> list(PageTableRequest request) {
-                return tOrganDao.list(request.getParams(), request.getOffset(), request.getLimit());
+            public List<TTrainCourse> list(PageTableRequest request) {
+                return tTrainCourseDao.list(request.getParams(), request.getOffset(), request.getLimit());
             }
         }).handle(request);
     }
@@ -76,18 +78,6 @@ public class TOrganController {
     @DeleteMapping("/{id}")
     @ApiOperation(value = "删除")
     public void delete(@PathVariable String id) {
-        tOrganDao.delete(id);
-    }
-    /**
-     * 获取所有机构列表
-     *  Description:
-     *  @author xiaoding  DateTime 2019年7月20日 下午12:26:09
-     *  @return
-     
-     */
-    @GetMapping("/getAllOrgan")
-    @ApiOperation(value = "获取所有机构列表")
-    public  List<TOrgan> getAllOrgan(PageTableRequest request){
-    	return tOrganDao.getAllOrgan(request.getParams());
+        tTrainCourseDao.delete(id);
     }
 }
