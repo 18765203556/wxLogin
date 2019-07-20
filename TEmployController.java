@@ -2,10 +2,10 @@ package com.boot.security.server.controller;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -14,10 +14,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.boot.security.server.dao.TEmployCollectDao;
-import com.boot.security.server.dao.TEmployCommentDao;
+import com.boot.security.server.dao.CommonDao;
 import com.boot.security.server.dao.TEmployDao;
-import com.boot.security.server.dao.TEmployDeliverDao;
 import com.boot.security.server.model.TEmploy;
 import com.boot.security.server.page.table.PageTableHandler;
 import com.boot.security.server.page.table.PageTableHandler.CountHandler;
@@ -33,13 +31,14 @@ public class TEmployController {
 
     @Autowired
     private TEmployDao tEmployDao;
-    @Autowired
-    private TEmployCommentDao tEmployCommentDao;
+//    @Autowired
+//    private TEmployCommentDao tEmployCommentDao;
+//	@Autowired
+//	private TEmployCollectDao tEmployCollectDao;
+//	@Autowired
+//	private TEmployDeliverDao tEmployDeliverDao;
 	@Autowired
-	private TEmployCollectDao tEmployCollectDao;
-	@Autowired
-	private TEmployDeliverDao tEmployDeliverDao;
-
+    private CommonDao commonDao;
     @PostMapping
     @ApiOperation(value = "保存")
     public TEmploy save(@RequestBody TEmploy tEmploy) {
@@ -84,17 +83,38 @@ public class TEmployController {
         }).handle(request);
     }
 
-    @DeleteMapping("/{id}")
+    @GetMapping("/delete")
     @ApiOperation(value = "删除")
-    public void delete(@PathVariable String id) {
+    public void delete(PageTableRequest request, String id) {
         try {
-			tEmployDao.delete(id);
-			//删除用户不喜欢表
-			tEmployCommentDao.deleteAllByEmployId(id);
-			//删除用户收藏
-			tEmployCollectDao.deleteAllByEmployId(id);
-			//删除用户投递
-			tEmployDeliverDao.deleteAllByEmployId(id);
+        	Map<String, Object> params=request.getParams();
+        	if(id!=null&&!id.equals("")){
+				tEmployDao.delete(id);
+				//删除用户不喜欢表
+//				tEmployCommentDao.deleteAllByEmployId(id);
+				//删除用户收藏
+//				tEmployCollectDao.deleteAllByEmployId(id);
+				//删除用户投递
+//				tEmployDeliverDao.deleteAllByEmployId(id);
+				//删除用户不喜欢表
+				String sqlStrart="employId = ";
+				params.put("sqlStrart", sqlStrart);
+				params.put("id", id);
+				params.put("tableName","t_employ_comment");
+				commonDao.deleteAllByOtherId(params);
+				//删除用户收藏
+				sqlStrart="employ_id =  ";
+				params.put("sqlStrart", sqlStrart);
+				params.put("id", id);
+				params.put("tableName","t_employ_collect");
+				commonDao.deleteAllByOtherId(params);
+				//删除用户投递
+				sqlStrart="employ_id =";
+				params.put("sqlStrart", sqlStrart);
+				params.put("id", id);
+				params.put("tableName","t_employ_deliver");
+				commonDao.deleteAllByOtherId(params);
+	        }
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

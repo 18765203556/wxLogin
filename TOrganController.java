@@ -2,10 +2,10 @@ package com.boot.security.server.controller;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -14,13 +14,14 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.boot.security.server.page.table.PageTableRequest;
-import com.boot.security.server.page.table.PageTableHandler;
-import com.boot.security.server.page.table.PageTableResponse;
-import com.boot.security.server.page.table.PageTableHandler.CountHandler;
-import com.boot.security.server.page.table.PageTableHandler.ListHandler;
+import com.boot.security.server.dao.CommonDao;
 import com.boot.security.server.dao.TOrganDao;
 import com.boot.security.server.model.TOrgan;
+import com.boot.security.server.page.table.PageTableHandler;
+import com.boot.security.server.page.table.PageTableHandler.CountHandler;
+import com.boot.security.server.page.table.PageTableHandler.ListHandler;
+import com.boot.security.server.page.table.PageTableRequest;
+import com.boot.security.server.page.table.PageTableResponse;
 
 import io.swagger.annotations.ApiOperation;
 
@@ -30,7 +31,10 @@ public class TOrganController {
 
     @Autowired
     private TOrganDao tOrganDao;
-
+//    @Autowired
+//    private TTrainCourseDao tTrainCourseDao;
+    @Autowired
+    private CommonDao commonDao;
     @PostMapping
     @ApiOperation(value = "保存")
     public TOrgan save(@RequestBody TOrgan tOrgan) {
@@ -73,10 +77,26 @@ public class TOrganController {
         }).handle(request);
     }
 
-    @DeleteMapping("/{id}")
+    @GetMapping("/delete")
     @ApiOperation(value = "删除")
-    public void delete(@PathVariable String id) {
-        tOrganDao.delete(id);
+    public void delete(PageTableRequest request,  String id) {
+    	
+    	try {
+    		Map<String, Object> params=request.getParams();
+        	if(id!=null&&!id.equals("")){
+	    		//删除课程
+//				tTrainCourseDao.deleteAllByOrganId(id);
+	    		String sqlStrart="trainOrgan = ";
+				params.put("sqlStrart", sqlStrart);
+				params.put("id", id);
+				params.put("tableName","t_train_course");
+				commonDao.deleteAllByOtherId(params);
+				//删除机构
+				tOrganDao.delete(id);
+        	}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
     }
     /**
      * 获取所有机构列表

@@ -2,10 +2,10 @@ package com.boot.security.server.controller;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.boot.security.server.dao.CommonDao;
 import com.boot.security.server.dao.TClassificationDao;
 import com.boot.security.server.model.TClassification;
 import com.boot.security.server.page.table.PageTableHandler;
@@ -30,6 +31,8 @@ public class TClassificationController {
 
     @Autowired
     private TClassificationDao tClassificationDao;
+	@Autowired
+    private CommonDao commonDao;
 
     @PostMapping
     @ApiOperation(value = "保存")
@@ -75,10 +78,45 @@ public class TClassificationController {
         }).handle(request);
     }
 
-    @DeleteMapping("/{id}")
+    @GetMapping("/deleteAll")
     @ApiOperation(value = "删除")
-    public void delete(@PathVariable String id) {
-        tClassificationDao.delete(id);
+    public void deleteAll(PageTableRequest request,String id) {
+        try {
+        	Map<String, Object> params=request.getParams();
+        	if(id!=null&&!id.equals("")){
+        		//拼接update参数
+            	//无序拼接
+    			tClassificationDao.delete(id);
+    			//拼接需要删除用户不喜欢的sql
+    			String sqlStrart="employId in ( select id from t_employ t where t.employType= ";
+    			String sqlEnd=")";
+    			params.put("sqlStrart", sqlStrart);
+    			params.put("id", id);
+    			params.put("sqlEnd", sqlEnd);
+    			params.put("tableName","t_employ_comment");
+    			commonDao.deleteAllByOtherId(params);
+    			//拼接善用用户收藏的sql
+    			sqlStrart="employ_id in ( select id from t_employ t where t.employType= ";
+    			params.put("sqlStrart", sqlStrart);
+    			params.put("id", id);
+    			params.put("sqlEnd", sqlEnd);
+    			params.put("tableName","t_employ_collect");
+    			commonDao.deleteAllByOtherId(params);
+    			//删除用户投递
+    			sqlStrart="employ_id in ( select id from t_employ t where t.employType= ";
+    			params.put("sqlStrart", sqlStrart);
+    			params.put("tableName","t_employ_deliver");
+    			commonDao.deleteAllByOtherId(params);
+//    			拼接删除职位的sql
+    			sqlStrart=" employType = ";
+    			params.put("sqlStrart", sqlStrart);
+    			params.put("sqlEnd", "");
+    			params.put("tableName","t_employ");
+    			commonDao.deleteAllByOtherId(params);
+        	}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
     }
     /**
      * 展示所有
