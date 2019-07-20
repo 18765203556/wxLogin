@@ -16,7 +16,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.boot.security.server.dao.CommonDao;
 import com.boot.security.server.dao.TOrganDao;
+import com.boot.security.server.dao.TTrainOrganRelationDao;
 import com.boot.security.server.model.TOrgan;
+import com.boot.security.server.model.TTrainOrganRelation;
 import com.boot.security.server.page.table.PageTableHandler;
 import com.boot.security.server.page.table.PageTableHandler.CountHandler;
 import com.boot.security.server.page.table.PageTableHandler.ListHandler;
@@ -35,27 +37,65 @@ public class TOrganController {
 //    private TTrainCourseDao tTrainCourseDao;
     @Autowired
     private CommonDao commonDao;
+    @Autowired
+    private TTrainOrganRelationDao tTrainOrganRelationDao;
     @PostMapping
     @ApiOperation(value = "保存")
     public TOrgan save(@RequestBody TOrgan tOrgan) {
-    	String id= UUID.randomUUID().toString().replaceAll("-", "");
-    	tOrgan.setId(id);
-    	tOrgan.setCreateTime(new Date());
-        tOrganDao.save(tOrgan);
+    	try {
+			String id= UUID.randomUUID().toString().replaceAll("-", "");
+			tOrgan.setId(id);
+			tOrgan.setCreateTime(new Date());
+			tOrganDao.save(tOrgan);
+			List<String> trainClassList=tOrgan.getTrainClassList();
+			if(trainClassList!=null){
+				for (int i = 0; i < trainClassList.size(); i++) {
+					String relationId= UUID.randomUUID().toString().replaceAll("-", "");
+					TTrainOrganRelation entity =new TTrainOrganRelation();
+					entity.setCreateTime(new Date());
+					entity.setId(relationId);
+					entity.setOrganId(id);
+					entity.setTrainClassId(trainClassList.get(i));
+					tTrainOrganRelationDao.save(entity);
+				}
+			}
+			
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
         return tOrgan;
     }
 
     @GetMapping("/{id}")
     @ApiOperation(value = "根据id获取")
     public TOrgan get(@PathVariable String id) {
-        return tOrganDao.getById(id);
+    	TOrgan data=tOrganDao.getById(id);
+    	List<String> dataList=tTrainOrganRelationDao.getByOrganId(id);
+    	data.setTrainClassList(dataList);
+        return data;
     }
 
     @PutMapping
     @ApiOperation(value = "修改")
     public TOrgan update(@RequestBody TOrgan tOrgan) {
-    	tOrgan.setLastModTime(new Date());
-        tOrganDao.update(tOrgan);
+    	try {
+			tOrgan.setLastModTime(new Date());
+			tOrganDao.update(tOrgan);
+			tTrainOrganRelationDao.deleteAllByOrganId(tOrgan.getId());
+			List<String> trainClassList=tOrgan.getTrainClassList();
+			for (int i = 0; i < trainClassList.size(); i++) {
+				String relationId= UUID.randomUUID().toString().replaceAll("-", "");
+				TTrainOrganRelation entity =new TTrainOrganRelation();
+				entity.setCreateTime(new Date());
+				entity.setId(relationId);
+				entity.setOrganId(tOrgan.getId());
+				entity.setTrainClassId(trainClassList.get(i));
+				tTrainOrganRelationDao.save(entity);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
         return tOrgan;
     }
 

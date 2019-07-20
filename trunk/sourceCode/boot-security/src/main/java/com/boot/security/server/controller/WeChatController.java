@@ -32,6 +32,7 @@ import com.boot.security.server.model.TEmployCollect;
 import com.boot.security.server.model.TEmployComment;
 import com.boot.security.server.model.TEmployDeliver;
 import com.boot.security.server.model.TNews;
+import com.boot.security.server.model.TOrgan;
 import com.boot.security.server.model.TTrainingClassification;
 import com.boot.security.server.page.table.PageTableRequest;
 import com.boot.security.server.page.table.PageTableResponse;
@@ -1238,6 +1239,79 @@ public class WeChatController extends BaseController{
 				return JSON.toJSONString(jsonObject);
 			}
 			dataList=weChatService.listAllTrainingClassification(params.getParams());
+			log.info(JSON.toJSONString(dataList));
+			return success(dataList);
+		} catch (Exception e) {
+			e.printStackTrace();
+			return fail("查询失败请联系管理员");
+		}
+		
+	}
+	/***
+	 * 机构推荐
+	 *  Description:
+	 *  @author xiaoding  DateTime 2019年7月20日 下午4:22:24
+	 *  @param params
+	 *  @param openid
+	 *  @param token
+	 *  @param req
+	 *  @return
+	 
+	 */
+	@GetMapping("/listAllRecommendOrgan")
+    @ApiOperation(value = "机构推荐")
+	public String listAllRecommendOrgan(PageTableRequest req,String openid,String token,HttpServletRequest request){
+		List<TOrgan> dataList=null;
+		try {
+			//获取用户信息
+			JSONObject jsonObject=getUserId(openid, token,request);
+			if(jsonObject!=null &&jsonObject.containsKey("msg")){
+				return JSON.toJSONString(jsonObject);
+			}
+			Map<String, Object> params=req.getParams();
+			params.put("organRecom", "1");
+			dataList=weChatService.listAllRecommendOrgan(params);
+			log.info(JSON.toJSONString(dataList));
+			return success(dataList);
+		} catch (Exception e) {
+			e.printStackTrace();
+			return fail("查询失败请联系管理员");
+		}
+		
+	}
+	/***
+	 * 所有机构及筛选
+	 *  Description:
+	 *  @author xiaoding  DateTime 2019年7月20日 下午4:22:24
+	 *  @param params
+	 *  @param openid
+	 *  @param token
+	 *  @param req
+	 *  @return
+	 
+	 */
+	@GetMapping("/listAllOrgan")
+    @ApiOperation(value = "所有机构及筛选")
+	public String listAllOrgan(PageTableRequest req,String openid,String token,HttpServletRequest request){
+		List<TOrgan> dataList=null;
+		try {
+			//获取用户信息
+			JSONObject jsonObject=getUserId(openid, token,request);
+			if(jsonObject!=null &&jsonObject.containsKey("msg")){
+				return JSON.toJSONString(jsonObject);
+			}
+			Map<String, Object> params=req.getParams();
+			//根据城市名称去字典表中查询城市id
+			String cityName=(String)params.get("cityName");
+			if(cityName!=null){
+				String cityId=weChatService.getCityIdByCityName(cityName);
+				if(cityId!=null){
+					params.put("organCity",cityId);
+				}else{
+					return fail("根据城市名称查询城市id失败！请联系管理员 ");
+				}
+			}
+			dataList=weChatService.listAllRecommendOrgan(params);
 			log.info(JSON.toJSONString(dataList));
 			return success(dataList);
 		} catch (Exception e) {
