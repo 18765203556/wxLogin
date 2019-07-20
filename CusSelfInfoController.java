@@ -72,6 +72,15 @@ public class CusSelfInfoController {
     @DeleteMapping("/{id}")
     @ApiOperation(value = "删除")
     public void delete(@PathVariable String id) {
+    	
+    	CusSelfInfo detail = cusSelfInfoDao.getById(id);
+    	if(detail!=null) {
+    		String openid = detail.getOpenId();
+    		// 删除登录表信息
+    		// 若存在手机授权，删除手机授权记录表信息
+    		// 删除大V认证表信息
+    		cusSelfInfoDao.deleteByOpenid(openid);
+    	}
         cusSelfInfoDao.delete(id);
     }
 }
