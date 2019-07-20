@@ -33,6 +33,7 @@ import com.boot.security.server.model.TEmployComment;
 import com.boot.security.server.model.TEmployDeliver;
 import com.boot.security.server.model.TNews;
 import com.boot.security.server.model.TOrgan;
+import com.boot.security.server.model.TTrainCourse;
 import com.boot.security.server.model.TTrainingClassification;
 import com.boot.security.server.page.table.PageTableRequest;
 import com.boot.security.server.page.table.PageTableResponse;
@@ -1311,9 +1312,132 @@ public class WeChatController extends BaseController{
 					return fail("根据城市名称查询城市id失败！请联系管理员 ");
 				}
 			}
+			//根据列表筛选
+			List<String> trainClassList=null;
+			String trainClassListStr=(String)params.get("trainClassList");
+			if(trainClassListStr!=null){
+				trainClassList=weChatService.getRealdtionByOrganId(trainClassListStr);
+				if(trainClassList!=null&&trainClassList.size()>0){
+					StringBuffer organListStr=new StringBuffer("");
+					for (String string : trainClassList) {
+						if(organListStr.equals("")){
+							organListStr.append("'"+string+"'");
+						}else{
+							organListStr.append(",'"+string+"'");
+						}
+					}
+					params.put("organList", organListStr.toString());
+				}
+			}
 			dataList=weChatService.listAllRecommendOrgan(params);
 			log.info(JSON.toJSONString(dataList));
 			return success(dataList);
+		} catch (Exception e) {
+			e.printStackTrace();
+			return fail("查询失败请联系管理员");
+		}
+		
+	}
+	/***
+	 *  根据id获取课程详情
+	 *  Description:
+	 *  @author xiaoding  DateTime 2019年7月20日 下午4:22:24
+	 *  @param params
+	 *  @param openid
+	 *  @param token
+	 *  @param req
+	 *  @return
+	 
+	 */
+	@GetMapping("/getTrainCourseById")
+    @ApiOperation(value = "根据id获取课程详情")
+	public String getTrainCourseById(PageTableRequest req,String openid,String token,HttpServletRequest request,String id){
+		TTrainCourse detail=null;
+		List<TOrgan> dataList=null;
+		try {
+			//获取用户信息
+			JSONObject jsonObject=getUserId(openid, token,request);
+			if(jsonObject!=null &&jsonObject.containsKey("msg")){
+				return JSON.toJSONString(jsonObject);
+			}
+			Map<String, Object> resultMap=new HashMap<String, Object>();
+			Map<String, Object> params=req.getParams();
+			detail=weChatService.getTrainCourseById(id);
+			resultMap.put("detail", detail);
+			params.put("organRecom", "1");
+			dataList=weChatService.listAllRecommendOrgan(params);
+			resultMap.put("listRecommendOrgan", dataList);
+			log.info(JSON.toJSONString(dataList));
+			return success(resultMap);
+		} catch (Exception e) {
+			e.printStackTrace();
+			return fail("查询失败请联系管理员");
+		}
+		
+	}
+	/***
+	 *  根据id获取机构详情
+	 *  Description:
+	 *  @author xiaoding  DateTime 2019年7月20日 下午4:22:24
+	 *  @param params
+	 *  @param openid
+	 *  @param token
+	 *  @param req
+	 *  @return
+	 
+	 */
+	@GetMapping("/getOrganById")
+    @ApiOperation(value = "根据id获取机构详情")
+	public String getOrganById(PageTableRequest req,String openid,String token,HttpServletRequest request,String id){
+		TOrgan detail=null;
+		List<TOrgan> dataList=null;
+		try {
+			//获取用户信息
+			JSONObject jsonObject=getUserId(openid, token,request);
+			if(jsonObject!=null &&jsonObject.containsKey("msg")){
+				return JSON.toJSONString(jsonObject);
+			}
+			detail=weChatService.getOrganById(id);
+			log.info(JSON.toJSONString(dataList));
+			return success(detail);
+		} catch (Exception e) {
+			e.printStackTrace();
+			return fail("查询失败请联系管理员");
+		}
+		
+	}
+	/***
+	 *  根据机构id获取课程
+	 *  Description:
+	 *  @author xiaoding  DateTime 2019年7月20日 下午4:22:24
+	 *  @param params
+	 *  @param openid
+	 *  @param token
+	 *  @param req
+	 *  @return
+	 
+	 */
+	@GetMapping("/getTrainCourseByOrganId")
+    @ApiOperation(value = "根据机构id获取课程")
+	public String getTrainCourseByOrganId(PageTableRequest req,String openid,String token,HttpServletRequest request,String id,Integer pageSize,Integer page){
+		List<TTrainCourse> dataList=null;
+		try {
+			//获取用户信息
+			JSONObject jsonObject=getUserId(openid, token,request);
+			if(jsonObject!=null &&jsonObject.containsKey("msg")){
+				return JSON.toJSONString(jsonObject);
+			}
+			if(pageSize!=null && page!=null){
+				Integer offset=(page-1)*pageSize;
+				Integer limit=page*pageSize;
+				req.setOffset(offset);
+				req.setLimit(limit);
+				dataList=weChatService.getTrainCourseByOrganId(req.getParams(),req.getOffset(),req.getLimit());
+				log.info(JSON.toJSONString(dataList));
+				return success(dataList);
+			}else{
+				return fail("分页参数不存在！");
+			}
 		} catch (Exception e) {
 			e.printStackTrace();
 			return fail("查询失败请联系管理员");
