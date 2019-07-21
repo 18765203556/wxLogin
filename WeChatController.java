@@ -959,11 +959,11 @@ public class WeChatController extends BaseController{
 			String employTypes=jsonObject.getString("employTypes");
 			
 			if(employTypes!=null){
-				if(employTypes.indexOf(";")>-1){
-					employTypes="('"+employTypes.replace(";", "';'")+"')";
-				}else{
-					employTypes="('"+employTypes+"')";
+				params.put("sqlStart", "('");
+				if(employTypes.indexOf(",")>-1){
+					employTypes=employTypes.replace(",", "','");
 				}
+				params.put("sqlEnd", "')");
 				params.put("employTypes",employTypes);
 			}
 			
