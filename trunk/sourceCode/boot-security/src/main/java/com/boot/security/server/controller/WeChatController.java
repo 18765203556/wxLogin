@@ -42,6 +42,7 @@ import com.boot.security.server.service.WeChatService;
 import com.boot.security.server.service.WxService;
 import com.boot.security.server.utils.BaseController;
 import com.boot.security.server.utils.Const;
+import com.boot.security.server.utils.StrUtil;
 
 import io.swagger.annotations.ApiOperation;
 /**
@@ -659,7 +660,11 @@ public class WeChatController extends BaseController{
 			entity.setCreateTime(new Date());
 			//状态字段
 			String result= weChatService.saveDeliver(entity);
-			return success(result);
+			if(StrUtil.isEmpty(result)) {
+				return success(result);
+			}else {
+				return fail(result);
+			}
 		} catch (Exception e) {
 			e.printStackTrace();
 			 return fail("系统异常请联系管理员！");
