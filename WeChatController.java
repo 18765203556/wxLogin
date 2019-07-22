@@ -1449,4 +1449,30 @@ public class WeChatController extends BaseController{
 		}
 		
 	}
+	/**
+	 * 根据id获取分类详情
+	 *  Description:
+	 *  @author xiaoding  DateTime 2019年7月19日 下午3:05:22
+	 *  @return
+	 
+	 */
+	@GetMapping("/listTrainingClassificationById")
+    @ApiOperation(value = "根据id获取分类详情")
+	public String listTrainingClassificationById(String id,String openid,String token,HttpServletRequest req){
+		TTrainingClassification dataList=null;
+		try {
+			//获取用户信息
+			JSONObject jsonObject=getUserId(openid, token,req);
+			if(jsonObject!=null &&jsonObject.containsKey("msg")){
+				return JSON.toJSONString(jsonObject);
+			}
+			dataList=weChatService.listTrainingClassificationById(id);
+			log.info(JSON.toJSONString(dataList));
+			return success(dataList);
+		} catch (Exception e) {
+			e.printStackTrace();
+			return fail("查询失败请联系管理员");
+		}
+		
+	}
 }
