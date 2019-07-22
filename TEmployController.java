@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.boot.security.server.dao.CommonDao;
 import com.boot.security.server.dao.TEmployDao;
+import com.boot.security.server.model.TCompany;
 import com.boot.security.server.model.TEmploy;
 import com.boot.security.server.page.table.PageTableHandler;
 import com.boot.security.server.page.table.PageTableHandler.CountHandler;
@@ -120,4 +121,11 @@ public class TEmployController {
 			e.printStackTrace();
 		}
     }
+    
+    @GetMapping("/all")
+   	@ApiOperation(value = "所有职位")
+   	public List<TEmploy>  permissionsAll() {
+   		List<TEmploy> empList = tEmployDao.listAll();
+   		return empList;
+   	}
 }
