@@ -1475,4 +1475,36 @@ public class WeChatController extends BaseController{
 		}
 		
 	}
+	/**
+	 * 	取消点赞
+	 *  Description:
+	 *  @author xiaoding  DateTime 2019年7月10日 上午9:07:23
+	 *  @param json
+	 *  @param request
+	 *  @return
+	 
+	 */
+	
+	@GetMapping("/cancelGiveUp")
+    @ApiOperation(value = "取消点赞")
+    public String cancelGiveUp(String id,HttpServletRequest request,String openid,String token) {
+		try {
+//			String userId=(String)request.getAttribute("userId");
+			if(token==null||token==""||openid==null||openid==""){
+				return login("需要登录");
+			}
+			//获取用户信息
+			JSONObject jsonObject=getUserId(openid, token,request);
+			if(jsonObject!=null &&jsonObject.containsKey("msg")){
+				return JSON.toJSONString(jsonObject);
+			}
+			String userId=jsonObject.getString("userId");
+			
+			String result=weChatService.cancelGiveUp(id,userId);
+			return success(result);
+		} catch (Exception e) {
+			e.printStackTrace();
+			 return fail("系统异常请联系管理员！");
+		}
+    }
 }
